@@ -98,6 +98,8 @@ select.mini{font-size:12px;padding:4px 6px;width:auto;max-width:190px}
 :focus-visible{outline:3px solid var(--hi);outline-offset:2px}
 @media(max-width:860px){main{grid-template-columns:1fr;padding:16px}aside{position:static}.row{grid-template-columns:1fr 1fr}.head{display:none}header{padding:12px 16px}.u{grid-template-columns:1fr 1fr}.sh,.ir{grid-template-columns:1fr}.sh .acts{justify-content:flex-start}.src{grid-template-columns:1fr 100px 32px}.src .meta{grid-column:1/-1}}
 @media(prefers-reduced-motion:reduce){#toast{transition:none}}
+
+.pwwrap{position:relative}.pwwrap .txt{padding-right:42px}.eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:0;padding:6px;color:var(--mute);cursor:pointer;display:grid;place-items:center;border-radius:6px}.eye:hover{color:var(--ink)}.eye:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
 </style>
 </head>
 <body>
@@ -109,8 +111,13 @@ select.mini{font-size:12px;padding:4px 6px;width:auto;max-width:190px}
     <label class="lab" for="user">Username</label>
     <input class="txt" id="user" type="text" autocomplete="username" required autofocus style="margin-bottom:12px">
     <label class="lab" for="pw">Password</label>
-    <input class="txt" id="pw" type="password" autocomplete="current-password" required>
-    <label class="keep"><input type="checkbox" id="show"> Show password</label>
+    <div class="pwwrap">
+      <input class="txt" id="pw" type="password" autocomplete="current-password" required>
+      <button type="button" id="eye" class="eye" aria-label="Show password" aria-pressed="false" title="Show password">
+        <svg id="eyeon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        <svg id="eyeoff" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none"><path d="M17.9 17.9A10.4 10.4 0 0 1 12 19c-6.4 0-10-7-10-7a18 18 0 0 1 4.1-5.1M9.9 5.2A9.7 9.7 0 0 1 12 5c6.4 0 10 7 10 7a18 18 0 0 1-2.2 3.2M1 1l22 22"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+      </button>
+    </div>
     <label class="keep" style="margin-top:6px"><input type="checkbox" id="keep"> Keep me signed in on this device</label>
     <p class="err" id="err" role="alert"></p>
     <button class="buy" type="submit">Sign in</button>
@@ -123,7 +130,13 @@ const sha = async s => {
   return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("");
 };
 try { if (sessionStorage.getItem(TOKEN) === H || localStorage.getItem(TOKEN) === H) location.replace("./"); } catch (e) {}
-document.getElementById("show").addEventListener("change", e => { document.getElementById("pw").type = e.target.checked ? "text" : "password"; });
+document.getElementById("eye").addEventListener("click", e => {
+  const pw = document.getElementById("pw"), b = e.currentTarget, show = pw.type === "password";
+  pw.type = show ? "text" : "password";
+  b.setAttribute("aria-pressed", show); b.setAttribute("aria-label", show ? "Hide password" : "Show password"); b.title = b.getAttribute("aria-label");
+  document.getElementById("eyeon").style.display = show ? "none" : ""; document.getElementById("eyeoff").style.display = show ? "" : "none";
+  pw.focus();
+});
 document.getElementById("f").addEventListener("submit", async e => {
   e.preventDefault();
   const err = document.getElementById("err"), pw = document.getElementById("pw"), user = document.getElementById("user");
