@@ -23,7 +23,7 @@ The idea: track stock for the cleaning products, delivery boxes, packing materia
 
 - **Data is saved in each browser only.** Stock counts, usage rates, shops and prices live in the browser's local storage. A different computer, phone or browser starts from the starting list, and clearing browser data wipes it. A real version would need a database so everyone shares the same numbers.
 - **The sign-in is a basic gate, not real security.** This is a static site on GitHub Pages, so the password check runs in the browser and the page files are public. It keeps casual visitors out. It does not protect anything sensitive, so do not put supplier logins, account numbers or private information in the site. A real version should use proper server-side login.
-- **Prices are starting estimates.** They were taken from UK supplier websites in November 2026. Some are ex VAT and some inc VAT, and items marked "Estimate" had no reliable price. The starting shops are just where those prices were found. Replace them with your real suppliers and prices.
+- **Shops and prices:** the two shops are Supplies Team (Banner) and Protega. Only items found on Protega's public shop are linked so far, with prices from its site in November 2026 (VAT status not stated). The paper tape price is marked "Estimate" because the pack size still needs confirming. Supplies Team needs a login and blocks automated checks, so none of its prices are filled in. Every other item is flagged on the Shops page as needing a shop, so link them by hand.
 - **Stock numbers and daily usage are placeholders** and need setting to match real usage.
 - **No real ordering.** Automating purchases would need each supplier's ordering system or an API, and many shops do not offer one.
 

@@ -110,7 +110,8 @@ select.mini{font-size:12px;padding:4px 6px;width:auto;max-width:190px}
     <input class="txt" id="user" type="text" autocomplete="username" required autofocus style="margin-bottom:12px">
     <label class="lab" for="pw">Password</label>
     <input class="txt" id="pw" type="password" autocomplete="current-password" required>
-    <label class="keep"><input type="checkbox" id="keep"> Keep me signed in on this device</label>
+    <label class="keep"><input type="checkbox" id="show"> Show password</label>
+    <label class="keep" style="margin-top:6px"><input type="checkbox" id="keep"> Keep me signed in on this device</label>
     <p class="err" id="err" role="alert"></p>
     <button class="buy" type="submit">Sign in</button>
   </form>
@@ -122,13 +123,14 @@ const sha = async s => {
   return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("");
 };
 try { if (sessionStorage.getItem(TOKEN) === H || localStorage.getItem(TOKEN) === H) location.replace("./"); } catch (e) {}
+document.getElementById("show").addEventListener("change", e => { document.getElementById("pw").type = e.target.checked ? "text" : "password"; });
 document.getElementById("f").addEventListener("submit", async e => {
   e.preventDefault();
   const err = document.getElementById("err"), pw = document.getElementById("pw"), user = document.getElementById("user");
   err.textContent = "";
   if (!(window.crypto && crypto.subtle)) { err.textContent = "This page needs to be opened over https to check the password."; return; }
   const ok = (await sha("stockbalance|" + user.value.trim().toLowerCase() + "|" + pw.value)) === H;
-  if (!ok) { await new Promise(r => setTimeout(r, 800)); err.textContent = "That username or password isn't right. Try again."; pw.value = ""; pw.focus(); return; }
+  if (!ok) { await new Promise(r => setTimeout(r, 800)); err.textContent = "That username or password isn't right. Try again."; pw.focus(); pw.select(); return; }
   try {
     sessionStorage.removeItem(TOKEN); localStorage.removeItem(TOKEN);
     (document.getElementById("keep").checked ? localStorage : sessionStorage).setItem(TOKEN, H);

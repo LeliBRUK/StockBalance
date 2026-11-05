@@ -118,50 +118,38 @@ select.mini{font-size:12px;padding:4px 6px;width:auto;max-width:190px}
 <script>
 // Shared by every page. All data is saved in this browser (localStorage).
 const KEY = "stockbalance.v1";
+const VER = 2;
 const CATS = ["Cleaning and waste", "Boxes", "Packing materials", "Labels and paper"];
 
 function P(shop, price, vat, url, est) { return { shop, price, vat: vat || "", url: url || "", est: !!est }; }
-const U = {
-  raja: "https://www.rajapack.co.uk/cardboard-boxes/standard-boxes_C1010.html",
-  globe: "https://www.globepackaging.co.uk/learning/best-boxes-for-shipping-electronics-types-prices-where-to-buy"
-};
 
-// Starter suppliers: these are where the prices below were found. Replace them with your own on the Shops page.
+// Your two suppliers.
 const SHOPS0 = [
-  ["cfs", "CFS", "https://www.cfsnet.co.uk/"],
-  ["gtse", "GTSE", "https://gtse.co.uk/"],
-  ["aos", "AOS Online", "https://www.aosonline.co.uk/"],
-  ["safety", "The Safety Supply Company", "https://www.thesafetysupplycompany.co.uk/"],
-  ["raja", "Rajapack", "https://www.rajapack.co.uk/"],
-  ["globe", "Globe Packaging", "https://www.globepackaging.co.uk/"],
-  ["mailcoms", "Mailcoms", "https://shop.mailcoms.co.uk/"],
-  ["cableties", "Cableties.co.uk", "https://cableties.co.uk/"],
-  ["smartuk", "SmartUK", "https://www.smartuk.net/"],
-  ["pronto", "Pronto Direct", "https://www.prontodirect.co.uk/"],
-  ["cdm", "CDM Labels", "https://cdmlabels.co.uk/"]
-].map(([id, name, url]) => ({ id, name, url, notes: "" }));
+  { id: "banner", name: "Supplies Team (Banner)", url: "https://www.supplies-team.co.uk/", notes: "Login needed. Prices not checked yet." },
+  { id: "protega", name: "Protega", url: "https://protega.shop/", notes: "Some items are account-only, so their prices need a login." }
+];
 
 // id, name, detail, category, usual order quantity, in stock, used per day, level shown as full, shops
 const ITEMS0 = [
-  [1, "Isopropyl alcohol (IPA)", "5 L bottle", "Cleaning and waste", 2, 3, 0.1, 6, [P("cfs", 21.60, "inc", "https://www.cfsnet.co.uk/s-ais002%2d005/isopropyl-alcohol-5-litre/")]],
-  [2, "Sticker remover", "400 ml can", "Cleaning and waste", 12, 5, 0.15, 12, [P("gtse", 3.36, "", "https://gtse.co.uk/label-remover-spray-400ml-box-of-12")]],
-  [3, "Compressed air spray", "400 ml can", "Cleaning and waste", 6, 4, 0.3, 12, [P("gtse", 3.51, "", "https://gtse.co.uk/air-duster-400ml")]],
-  [4, "Window cleaner", "5 L bottle", "Cleaning and waste", 2, 2, 0.1, 4, [P("aos", 10.56, "inc", "https://www.aosonline.co.uk/prdctrl-2work-glass-and-window-cleaner-5-litre-701-846beae4")]],
-  [5, "All-purpose foam cleaner", "500 ml can", "Cleaning and waste", 6, 3, 0.2, 8, [P("safety", 4.32, "inc", "https://www.thesafetysupplycompany.co.uk/p/9537228/prosolve-odourless-foam-cleaner-500ml-pv-ofc5a")]],
-  [6, "Bin bags", "Pack of 100", "Cleaning and waste", 2, 3, 0.1, 6, [P("smartuk", 16.28, "ex", "https://www.smartuk.net/bin-bags/")]],
-  [7, "Small box", "Single wall cardboard", "Boxes", 50, 60, 5, 150, [P("raja", 0.45, "ex", U.raja)]],
-  [8, "Medium box", "Single wall cardboard", "Boxes", 50, 40, 4, 100, [P("raja", 0.51, "ex", U.raja)]],
-  [9, "Large box", "Single wall cardboard", "Boxes", 25, 25, 2, 60, [P("raja", 1.34, "ex", U.raja)]],
-  [10, "Laptop box", "Double wall cardboard", "Boxes", 10, 12, 1, 30, [P("globe", 2.10, "ex", U.globe)]],
-  [11, "Phone box", "Small folding box", "Boxes", 50, 30, 3, 60, [P("globe", 1.00, "ex", U.globe, true)]],
-  [12, "Screen box", "Double wall cardboard", "Boxes", 5, 8, 0.5, 20, [P("globe", 4.19, "ex", U.globe)]],
-  [13, "Support box", "Large folding box", "Boxes", 25, 20, 1.5, 40, [P("raja", 0.45, "ex", U.raja, true)]],
-  [14, "Honeycomb paper", "500 mm × 250 m roll", "Packing materials", 1, 2, 0.05, 4, [P("aos", 65.64, "inc", "https://www.aosonline.co.uk/prdctrl-honeycomb-kraft-paper-80gsm-500mmx250m-lwp80hex-ac1efec5")]],
-  [15, "Masking tape", "24 mm × 50 m roll", "Packing materials", 24, 15, 0.5, 36, [P("cableties", 0.97, "", "https://cableties.co.uk/products/box-of-masking-tape-24mm")]],
-  [16, "Brown tape", "48 mm × 66 m roll", "Packing materials", 12, 10, 1, 36, [P("mailcoms", 1.60, "inc", "https://shop.mailcoms.co.uk/products/rolls-of-brown-packing-parcel-tape-48mmx66m")]],
+  [1, "Isopropyl alcohol (IPA)", "5 L bottle", "Cleaning and waste", 2, 3, 0.1, 6, []],
+  [2, "Sticker remover", "400 ml can", "Cleaning and waste", 12, 5, 0.15, 12, []],
+  [3, "Compressed air spray", "400 ml can", "Cleaning and waste", 6, 4, 0.3, 12, []],
+  [4, "Window cleaner", "5 L bottle", "Cleaning and waste", 2, 2, 0.1, 4, []],
+  [5, "All-purpose foam cleaner", "500 ml can", "Cleaning and waste", 6, 3, 0.2, 8, []],
+  [6, "Bin bags", "Pack of 100", "Cleaning and waste", 2, 3, 0.1, 6, []],
+  [7, "Small box", "Single wall cardboard", "Boxes", 50, 60, 5, 150, []],
+  [8, "Medium box", "Single wall cardboard", "Boxes", 50, 40, 4, 100, []],
+  [9, "Large box", "Single wall cardboard", "Boxes", 25, 25, 2, 60, []],
+  [10, "Laptop box", "Double wall cardboard", "Boxes", 10, 12, 1, 30, []],
+  [11, "Phone box", "Small folding box", "Boxes", 50, 30, 3, 60, []],
+  [12, "Screen box", "Double wall cardboard", "Boxes", 5, 8, 0.5, 20, []],
+  [13, "Support box", "Large folding box", "Boxes", 25, 20, 1.5, 40, []],
+  [14, "Hexi Fill", "Void fill, 100% recycled paper", "Packing materials", 1, 2, 0.05, 4, [P("protega", 42.02, "", "https://protega.shop/collections/key-products/products/fil-in-a-box%E2%84%A2-with-hexafil%E2%84%A2-hexcelwrap-void-fill")]],
+  [15, "Masking tape", "24 mm × 50 m roll", "Packing materials", 24, 15, 0.5, 36, []],
+  [16, "Brown tape", "Kraft paper tape, 48 mm × 100 m roll", "Packing materials", 6, 10, 1, 36, [P("protega", 18.90, "", "https://protega.shop/collections/key-products/products/kraft-paper-self-adhesive-brown-tape-48mm-x-100-metres-double-length-50mm-core-diameter", true)]],
   [17, "Love labels", "Trade-in love labels", "Labels and paper", 1, 6, 0.4, 12, []],
-  [18, "Receipt paper", "80 × 80 mm thermal roll", "Labels and paper", 20, 25, 1.5, 60, [P("pronto", 0.85, "inc", "https://www.prontodirect.co.uk/thermal-till-roll-80-x-80mm/")]],
-  [19, "Standard labels", "100 × 150 mm thermal roll", "Labels and paper", 12, 14, 0.8, 36, [P("cdm", 3.95, "", "https://cdmlabels.co.uk/products/100-x-150mm-direct-thermal-labels-economy-25mm-core")]]
+  [18, "Receipt paper", "80 × 80 mm thermal roll", "Labels and paper", 20, 25, 1.5, 60, []],
+  [19, "Standard labels", "100 × 150 mm thermal roll", "Labels and paper", 12, 14, 0.8, 36, []]
 ].map(([id, n, d, cat, pack, have, rate, target, src]) => ({ id, n, d, cat, pack, have, rate, target, src }));
 
 const today = () => { const d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 864e5); };
@@ -172,13 +160,18 @@ const gbp = v => "£" + Number(v).toFixed(2);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 function fresh() {
-  return { shops: SHOPS0.map(s => ({ ...s })), items: ITEMS0.map(i => ({ ...i, src: i.src.map(x => ({ ...x })) })), last: today() };
+  return { shops: SHOPS0.map(s => ({ ...s })), items: ITEMS0.map(i => ({ ...i, src: i.src.map(x => ({ ...x })) })), last: today(), v: VER };
 }
 function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
 function load() {
   let s = null;
   try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
   if (!s || !Array.isArray(s.shops) || !Array.isArray(s.items)) s = fresh();
+  if (s.v !== VER) { // new shop list: reset shops and links, keep stock counts and usage
+    s.shops = SHOPS0.map(x => ({ ...x }));
+    s.items.forEach(i => { const b = ITEMS0.find(x => x.id === i.id); i.src = b ? b.src.map(x => ({ ...x })) : []; });
+    s.v = VER;
+  }
   s.items.forEach(i => { const b = ITEMS0.find(x => x.id === i.id); if (b) { i.n = b.n; i.d = b.d; i.cat = b.cat; } }); // keep names and descriptions up to date
   const days = today() - s.last;
   if (days > 0) { // stock drops by each item's daily usage for every day that has passed
