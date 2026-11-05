@@ -121,7 +121,7 @@ const sha = async s => {
   const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
   return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("");
 };
-try { if (sessionStorage.getItem(TOKEN) === H || localStorage.getItem(TOKEN) === H) location.replace("index.html"); } catch (e) {}
+try { if (sessionStorage.getItem(TOKEN) === H || localStorage.getItem(TOKEN) === H) location.replace("./"); } catch (e) {}
 document.getElementById("f").addEventListener("submit", async e => {
   e.preventDefault();
   const err = document.getElementById("err"), pw = document.getElementById("pw"), user = document.getElementById("user");
@@ -133,7 +133,7 @@ document.getElementById("f").addEventListener("submit", async e => {
     sessionStorage.removeItem(TOKEN); localStorage.removeItem(TOKEN);
     (document.getElementById("keep").checked ? localStorage : sessionStorage).setItem(TOKEN, H);
   } catch (x) { err.textContent = "This browser is blocking storage, so the sign-in can't be remembered."; return; }
-  location.replace("index.html");
+  location.replace("./");
 });
 </script>
 </body>

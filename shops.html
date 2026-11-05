@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stock Balance · Shops</title>
-<script>(function(){var h="477cce3bafa68377746c5deafd2098c88b35da25d29fc4d69e5c7a4d6e4d1422",ok=false;try{ok=sessionStorage.getItem("sb.auth")===h||localStorage.getItem("sb.auth")===h}catch(e){}if(!ok){document.documentElement.style.display="none";location.replace("login.html")}})();</script>
+<script>(function(){var h="477cce3bafa68377746c5deafd2098c88b35da25d29fc4d69e5c7a4d6e4d1422",ok=false;try{ok=sessionStorage.getItem("sb.auth")===h||localStorage.getItem("sb.auth")===h}catch(e){}if(!ok){document.documentElement.style.display="none";location.replace("login")}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -104,7 +104,7 @@ select.mini{font-size:12px;padding:4px 6px;width:auto;max-width:190px}
 <body>
 <header>
   <div class="logo"><i></i>Stock Balance</div>
-  <nav class="nav"><a href="index.html">Stock</a><a href="usage.html">Daily usage</a><a href="shops.html" aria-current="page">Shops</a><button id="signout" type="button">Sign out</button></nav>
+  <nav class="nav"><a href="./">Home</a><a href="daily-usage">Daily usage</a><a href="shops" aria-current="page">Shops</a><button id="signout" type="button">Sign out</button></nav>
 </header>
 <main class="one">
   <section>
@@ -220,7 +220,7 @@ function toast(t) {
 document.addEventListener("click", e => {
   if (e.target.id === "signout") {
     try { sessionStorage.removeItem("sb.auth"); localStorage.removeItem("sb.auth"); } catch (x) {}
-    location.href = "login.html";
+    location.href = "login";
   }
 });
 </script>

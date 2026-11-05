@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Stock Balance · Stock</title>
-<script>(function(){var h="477cce3bafa68377746c5deafd2098c88b35da25d29fc4d69e5c7a4d6e4d1422",ok=false;try{ok=sessionStorage.getItem("sb.auth")===h||localStorage.getItem("sb.auth")===h}catch(e){}if(!ok){document.documentElement.style.display="none";location.replace("login.html")}})();</script>
+<title>Stock Balance · Home</title>
+<script>(function(){var h="477cce3bafa68377746c5deafd2098c88b35da25d29fc4d69e5c7a4d6e4d1422",ok=false;try{ok=sessionStorage.getItem("sb.auth")===h||localStorage.getItem("sb.auth")===h}catch(e){}if(!ok){document.documentElement.style.display="none";location.replace("login")}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -104,7 +104,7 @@ select.mini{font-size:12px;padding:4px 6px;width:auto;max-width:190px}
 <body>
 <header>
   <div class="logo"><i></i>Stock Balance</div>
-  <nav class="nav"><a href="index.html" aria-current="page">Stock</a><a href="usage.html">Daily usage</a><a href="shops.html">Shops</a><button id="signout" type="button">Sign out</button></nav>
+  <nav class="nav"><a href="./" aria-current="page">Home</a><a href="daily-usage">Daily usage</a><a href="shops">Shops</a><button id="signout" type="button">Sign out</button></nav>
 </header>
 <main>
   <section>
@@ -228,7 +228,7 @@ function toast(t) {
 document.addEventListener("click", e => {
   if (e.target.id === "signout") {
     try { sessionStorage.removeItem("sb.auth"); localStorage.removeItem("sb.auth"); } catch (x) {}
-    location.href = "login.html";
+    location.href = "login";
   }
 });
 </script>
@@ -252,7 +252,7 @@ function renderTable() {
       const pl = ch && ch.price != null ? `<span class="pl" title="Price each, from the cheapest shop${ch.est ? " (estimate)" : ""}">${ch.est ? "~" : ""}${gbp(ch.price)}</span>` : "";
       const btn = i.src.length
         ? `<button class="add" data-cart="${i.id}" ${cart[i.id] ? "disabled" : ""}>${cart[i.id] ? "In cart" : "Add to cart"}</button>`
-        : `<a class="add" href="shops.html#item-${i.id}">Link a shop</a>`;
+        : `<a class="add" href="shops#item-${i.id}">Link a shop</a>`;
       h += `<div class="row"><div class="name"><b>${esc(i.n)}${pl}</b><small>${esc(i.d)}</small></div>
       <div><div class="lvl" aria-hidden="true"><div class="bg-${s}" style="width:${pct}%"></div></div>
       <div class="qty"><span class="tag ${s}">${label[s]}</span> · ${lasts(i)}</div></div>

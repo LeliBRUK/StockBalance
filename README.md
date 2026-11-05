@@ -8,8 +8,8 @@ The idea: track stock for the cleaning products, delivery boxes, packing materia
 
 | Page | Purpose |
 | --- | --- |
-| **Stock** (`index.html`) | Shows every item with a level bar and "Well stocked", "Running low" or "Out of stock". Use − and + (or type a number) to change stock. Items can be added to an order cart, which groups them by shop. |
-| **Daily usage** (`usage.html`) | Set how much of each item is used per day. Stock drops by that amount every day automatically. |
+| **Home** (`index.html`, the main address) | Shows every item with a level bar and "Well stocked", "Running low" or "Out of stock". Use − and + (or type a number) to change stock. Items can be added to an order cart, which groups them by shop. |
+| **Daily usage** (`daily-usage.html`) | Set how much of each item is used per day. Stock drops by that amount every day automatically. |
 | **Shops** (`shops.html`) | Lists the shops you buy from and links each item to one or more shops with a price. Shops and prices can be edited, added and removed. |
 | **Sign in** (`login.html`) | Password screen shown before the other pages. |
 
@@ -29,4 +29,4 @@ The idea: track stock for the cleaning products, delivery boxes, packing materia
 
 ## Changing the site
 
-The site is four plain files: `index.html`, `usage.html`, `shops.html` and `login.html`. Each one has its styling and code built in, so they work as long as they sit in the same folder. To update the live site, change the files and commit. GitHub Pages republishes within a minute or two.
+The site is four plain files: `index.html`, `daily-usage.html`, `shops.html` and `login.html`. On GitHub Pages they open at clean addresses: the main address for Home, then `/daily-usage`, `/shops` and `/login`. These clean links only work on the live site. If you open the files straight from a folder on your computer, the menu links will not find each other. Each one has its styling and code built in, so they work as long as they sit in the same folder. To update the live site, change the files and commit. GitHub Pages republishes within a minute or two.
