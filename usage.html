@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Supply Room · Daily usage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f2;--panel:#fff;--ink:#12303a;--mute:#5b727a;--line:#d5e0de;--ok:#1f8a70;--low:#b86e00;--out:#c23b3b;--brand:#12303a;--hi:#ffd23f}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1c20;--panel:#172a30;--ink:#e6f0ee;--mute:#93aab1;--line:#2a4249;--ok:#4cc3a4;--low:#f0a53a;--out:#ee7070;--brand:#e6f0ee;--hi:#ffd23f}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.45}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 28px;border-bottom:1px solid var(--line);background:var(--panel)}
+.logo{font-weight:800;font-size:22px;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+.logo i{width:14px;height:22px;background:var(--hi);border-radius:3px;border:2px solid var(--brand);display:inline-block}
+header span{color:var(--mute);font-size:14px}
+main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;padding:24px 28px;max-width:1180px;margin:0 auto}
+h1{font-size:30px;line-height:1.15;margin:0 0 6px;letter-spacing:-.02em;font-weight:800}
+.sub{color:var(--mute);margin:0 0 18px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.chip,.bar button,.bar input{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:7px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--brand);color:var(--bg);border-color:var(--brand)}
+.bar input{cursor:text;border-radius:8px;min-width:170px}
+.bar .spacer{flex:1}
+.addall{background:var(--hi)!important;color:#12303a!important;border-color:#12303a!important;font-weight:600}
+.table{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.row{display:grid;grid-template-columns:minmax(150px,1.5fr) minmax(130px,1.3fr) 130px 110px;gap:14px;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.head{font-size:13px;color:var(--mute);background:var(--bg)}
+.name b{display:block;font-weight:600}
+.name small{color:var(--mute)}
+.lvl{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.lvl div{height:100%;border-radius:4px}
+.qty{font-size:13px;color:var(--mute);margin-top:4px}
+.tag{font-size:13px;font-weight:600}
+.ok{color:var(--ok)}.low{color:var(--low)}.out{color:var(--out)}
+.bg-ok{background:var(--ok)}.bg-low{background:var(--low)}.bg-out{background:var(--out)}
+.add{font:inherit;font-size:14px;padding:7px 10px;border-radius:8px;border:1px solid var(--brand);background:transparent;color:var(--ink);cursor:pointer;font-weight:600}
+.add:hover{background:var(--brand);color:var(--bg)}
+.add:disabled{opacity:.45;cursor:default;background:transparent;color:var(--ink)}
+aside{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;align-self:start;position:sticky;top:16px}
+aside h2{margin:0 0 4px;font-size:20px}
+.empty{color:var(--mute);font-size:14px;padding:14px 0}
+.sup{margin-top:14px}
+.sup h3{font-size:14px;margin:0 0 6px;display:flex;justify-content:space-between;border-bottom:2px solid var(--hi);padding-bottom:4px}
+.line{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px;padding:5px 0}
+.step{display:inline-flex;align-items:center;gap:6px;margin-top:2px}
+.step button{width:24px;height:24px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;font:inherit}
+.total{display:flex;justify-content:space-between;font-weight:800;font-size:18px;margin:16px 0 10px;padding-top:12px;border-top:1px solid var(--line)}
+.buy{width:100%;font:inherit;font-weight:800;font-size:16px;padding:12px;border-radius:8px;border:2px solid var(--brand);background:var(--hi);color:#12303a;cursor:pointer}
+.buy:disabled{opacity:.45;cursor:default}
+.note{font-size:12px;color:var(--mute);margin-top:8px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--brand);color:var(--bg);padding:12px 18px;border-radius:8px;opacity:0;pointer-events:none;transition:.25s;max-width:90vw;font-size:14px}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
+@media(max-width:860px){main{grid-template-columns:1fr;padding:16px}aside{position:static}.row{grid-template-columns:1fr 1fr}.head{display:none}header{padding:14px 16px}}
+@media(prefers-reduced-motion:reduce){#toast{transition:none}}
+.nav{display:flex;gap:6px}
+.nav a{color:var(--ink);text-decoration:none;font-size:15px;font-weight:600;padding:7px 14px;border-radius:999px;border:1px solid transparent}
+.nav a[aria-current=page]{background:var(--brand);color:var(--bg)}
+.nav a:not([aria-current]):hover{border-color:var(--line)}
+.adj{display:inline-flex;align-items:center;gap:4px}
+.adj button{width:30px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;font:inherit;font-size:18px;line-height:1}
+.adj button:hover{border-color:var(--brand)}
+.adj input,.u input{font:inherit;width:62px;text-align:center;padding:6px 4px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+main.one{grid-template-columns:minmax(0,1fr);max-width:900px}
+.u{grid-template-columns:minmax(150px,1.5fr) 130px 130px minmax(110px,1fr)}
+.u label{font-size:12px;color:var(--mute);display:block;margin-bottom:3px}
+.reset{font:inherit;font-size:14px;margin-top:16px;padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--mute);cursor:pointer}
+@media(max-width:860px){.u{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><i></i>Supply Room</div>
+  <nav class="nav"><a href="index.html">Stock</a><a href="usage.html" aria-current="page">Daily usage</a></nav>
+</header>
+<main class="one">
+  <section>
+    <h1>Daily usage</h1>
+    <p class="sub">Set how much of each item you use per day. Stock drops by this amount every day, even when nobody has the site open. Use decimals for slower items, for example 0.2 is one every five days.</p>
+    <div class="table" id="table"></div>
+    <button class="reset" id="reset">Reset all demo data</button>
+  </section>
+</main>
+<div id="toast" role="status"></div>
+<script>
+// Shared by index.html and usage.html. Data is saved in this browser (localStorage).
+const KEY = "supplyroom.v1";
+const DEFAULTS = [
+  {id:1, n:"Multi-surface spray", d:"750 ml bottle", s:"BrightSource", p:2.4, pack:6, have:3, rate:0.3, target:12},
+  {id:2, n:"Thick bleach", d:"5 L bottle", s:"BrightSource", p:6.8, pack:2, have:2, rate:0.1, target:6},
+  {id:3, n:"Toilet roll", d:"Single roll, ordered 36 at a time", s:"Trade Hygiene Co.", p:0.52, pack:36, have:12, rate:1, target:36},
+  {id:4, n:"Hand soap refill", d:"1 L", s:"Trade Hygiene Co.", p:3.2, pack:4, have:4, rate:0.2, target:10},
+  {id:5, n:"Paper hand towels", d:"Case of 15 packs", s:"Trade Hygiene Co.", p:24, pack:1, have:3, rate:0.1, target:5},
+  {id:6, n:"Bin liners", d:"Roll of 100", s:"BrightSource", p:7.9, pack:2, have:6, rate:0.2, target:8},
+  {id:7, n:"Disinfectant wipes", d:"Tub of 200", s:"BrightSource", p:4.5, pack:4, have:3, rate:0.3, target:10},
+  {id:8, n:"Floor cleaner", d:"5 L bottle", s:"BrightSource", p:9.1, pack:1, have:4, rate:0.1, target:5},
+  {id:9, n:"Nitrile gloves (M)", d:"Box of 100", s:"Trade Hygiene Co.", p:6.3, pack:4, have:7, rate:0.3, target:12},
+  {id:10, n:"Microfibre cloths", d:"Pack of 10", s:"BrightSource", p:5.6, pack:2, have:5, rate:0.1, target:6},
+  {id:11, n:"Dishwasher tablets", d:"Tub of 100", s:"Trade Hygiene Co.", p:11.2, pack:2, have:3, rate:0.2, target:6}
+];
+const today = () => { const d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 864e5); };
+const r2 = v => Math.round(v * 100) / 100;
+const r1 = v => Math.round(v * 10) / 10;
+const fmt = v => String(r1(v));
+const gbp = v => "£" + v.toFixed(2);
+
+function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+function load() {
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+  if (!s || !Array.isArray(s.items)) s = { items: DEFAULTS.map(x => ({ ...x })), last: today() };
+  const days = today() - s.last;
+  if (days > 0) { // stock drops by each item's daily usage for every day that has passed
+    s.items.forEach(i => { i.have = Math.max(0, r2(i.have - i.rate * days)); });
+    s.last = today();
+  }
+  save(s);
+  return s;
+}
+function reset() { try { localStorage.removeItem(KEY); } catch (e) {} return load(); }
+
+const stat = i => r1(i.have) <= 0 ? "out" : i.have / i.target <= 0.4 ? "low" : "ok";
+const daysLeft = i => i.rate > 0 ? Math.floor(i.have / i.rate) : null;
+function lasts(i) {
+  if (r1(i.have) <= 0) return "Out now";
+  const d = daysLeft(i);
+  return d === null ? "No daily use set" : d === 0 ? "Less than a day" : "About " + d + (d === 1 ? " day" : " days");
+}
+function toast(t) {
+  const e = document.getElementById("toast");
+  e.textContent = t; e.classList.add("show");
+  clearTimeout(toast.h); toast.h = setTimeout(() => e.classList.remove("show"), 2600);
+}
+</script>
+<script>
+let S = load();
+function render() {
+  let h = '<div class="row head u"><div>Item</div><div>Used per day</div><div>Full level</div><div>Current stock lasts</div></div>';
+  S.items.forEach(i => {
+    h += `<div class="row u"><div class="name"><b>${i.n}</b><small>${fmt(i.have)} in stock</small></div>
+    <div><label for="r${i.id}">Per day</label><input id="r${i.id}" type="number" min="0" step="any" value="${i.rate}" data-rate="${i.id}"></div>
+    <div><label for="t${i.id}">Bar shows full at</label><input id="t${i.id}" type="number" min="1" step="any" value="${i.target}" data-target="${i.id}"></div>
+    <div class="qty" style="margin:0" id="l${i.id}">${lasts(i)}</div></div>`;
+  });
+  document.getElementById("table").innerHTML = h;
+}
+document.addEventListener("change", e => {
+  const t = e.target, id = t.dataset.rate || t.dataset.target;
+  if (!id) return;
+  const i = S.items.find(x => x.id == id), v = parseFloat(t.value);
+  if (t.dataset.rate) i.rate = isNaN(v) || v < 0 ? 0 : v;
+  else i.target = isNaN(v) || v < 1 ? 1 : v;
+  save(S);
+  document.getElementById("l" + id).textContent = lasts(i);
+  toast("Saved " + i.n);
+});
+document.getElementById("reset").addEventListener("click", () => {
+  if (confirm("Reset every item to the demo stock and usage?")) { S = reset(); render(); toast("Demo data restored"); }
+});
+render();
+</script>
+</body>
+</html>
