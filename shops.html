@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stock Balance · Shops</title>
+<script>(function(){var h="f986ce1418f6c82ee59285320f77a3cba0c3fd2842aafd6e0e7398920a13579c",ok=false;try{ok=sessionStorage.getItem("sb.auth")===h||localStorage.getItem("sb.auth")===h}catch(e){}if(!ok){document.documentElement.style.display="none";location.replace("login.html")}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f2;--panel:#fff;--ink:#12303a;--mute:#5b727a;--line:#d5e0de;--ok:#1f8a70;--low:#b86e00;--out:#c23b3b;--brand:#12303a;--hi:#ffd23f}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1c20;--panel:#172a30;--ink:#e6f0ee;--mute:#93aab1;--line:#2a4249;--ok:#4cc3a4;--low:#f0a53a;--out:#ee7070;--brand:#e6f0ee;--hi:#ffd23f}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.45}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px 16px;padding:14px 28px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+.logo{font-weight:800;font-size:22px;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+.logo i{width:14px;height:22px;background:var(--hi);border-radius:3px;border:2px solid var(--brand);display:inline-block}
+.nav{display:flex;gap:6px;flex-wrap:wrap}
+.nav a,.nav button{font:inherit;font-size:15px;font-weight:600;color:var(--ink);text-decoration:none;padding:7px 14px;border-radius:999px;border:1px solid transparent;background:transparent;cursor:pointer}
+.nav a[aria-current=page]{background:var(--brand);color:var(--bg)}
+.nav a:not([aria-current]):hover,.nav button:hover{border-color:var(--line)}
+.nav button{color:var(--mute)}
+main{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:24px;padding:24px 28px;max-width:1200px;margin:0 auto}
+main.one{grid-template-columns:minmax(0,1fr);max-width:1000px}
+h1{font-size:30px;line-height:1.15;margin:0 0 6px;letter-spacing:-.02em;font-weight:800}
+h2{margin:28px 0 4px;font-size:22px;letter-spacing:-.01em}
+aside h2{margin:0 0 4px;font-size:20px}
+.sub{color:var(--mute);margin:0 0 18px;max-width:70ch}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.chip,.bar button,.bar input,.bar select{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:7px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--brand);color:var(--bg);border-color:var(--brand)}
+.bar input{cursor:text;border-radius:8px;min-width:170px}
+.bar select{border-radius:8px}
+.bar .spacer{flex:1}
+.addall{background:var(--hi)!important;color:#12303a!important;border-color:#12303a!important;font-weight:600}
+.table{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.row{display:grid;grid-template-columns:minmax(150px,1.5fr) minmax(130px,1.3fr) 130px 120px;gap:14px;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.head{font-size:13px;color:var(--mute);background:var(--bg)}
+.cat{display:flex;justify-content:space-between;align-items:baseline;padding:8px 16px;background:var(--bg);border-top:1px solid var(--line);font-weight:800;font-size:15px}
+.cat span:last-child{font-weight:400;font-size:13px;color:var(--mute)}
+.name b{display:block;font-weight:600}
+.name small{color:var(--mute)}
+.lvl{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.lvl div{height:100%;border-radius:4px}
+.qty{font-size:13px;color:var(--mute);margin-top:4px}
+.tag{font-size:13px;font-weight:600}
+.ok{color:var(--ok)}.low{color:var(--low)}.out{color:var(--out)}
+.bg-ok{background:var(--ok)}.bg-low{background:var(--low)}.bg-out{background:var(--out)}
+.add{font:inherit;font-size:14px;padding:7px 10px;border-radius:8px;border:1px solid var(--brand);background:transparent;color:var(--ink);cursor:pointer;font-weight:600;text-decoration:none;display:inline-block;text-align:center}
+.add:hover{background:var(--brand);color:var(--bg)}
+.add:disabled{opacity:.45;cursor:default;background:transparent;color:var(--ink)}
+.danger{border-color:var(--line);color:var(--mute)}
+.danger:hover{background:var(--out);border-color:var(--out);color:#fff}
+.adj{display:inline-flex;align-items:center;gap:4px}
+.adj button{width:30px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;font:inherit;font-size:18px;line-height:1}
+.adj button:hover{border-color:var(--brand)}
+.adj input,.u input{font:inherit;width:64px;text-align:center;padding:6px 4px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.u{grid-template-columns:minmax(150px,1.5fr) 130px 130px minmax(110px,1fr)}
+.u label,.lab{font-size:12px;color:var(--mute);display:block;margin-bottom:3px}
+.reset{font:inherit;font-size:14px;margin-top:16px;padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--mute);cursor:pointer}
+aside{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;align-self:start;position:sticky;top:16px}
+.empty{color:var(--mute);font-size:14px;padding:14px 0}
+.sup{margin-top:14px}
+.sup h3{font-size:14px;margin:0 0 6px;display:flex;justify-content:space-between;border-bottom:2px solid var(--hi);padding-bottom:4px}
+.line{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;font-size:14px;padding:6px 0}
+.step{display:inline-flex;align-items:center;gap:6px;margin:2px 0}
+.step button{width:24px;height:24px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;font:inherit}
+.total{display:flex;justify-content:space-between;font-weight:800;font-size:18px;margin:16px 0 10px;padding-top:12px;border-top:1px solid var(--line)}
+.buy{width:100%;font:inherit;font-weight:800;font-size:16px;padding:12px;border-radius:8px;border:2px solid var(--brand);background:var(--hi);color:#12303a;cursor:pointer}
+.buy:disabled{opacity:.45;cursor:default}
+.note{font-size:12px;color:var(--mute);margin-top:8px}
+.txt,select.mini{font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);width:100%}
+select.mini{font-size:12px;padding:4px 6px;width:auto;max-width:190px}
+.sh{grid-template-columns:minmax(130px,1fr) minmax(150px,1.3fr) minmax(130px,1.2fr) 160px;align-items:end}
+.sh.head{align-items:center}
+.sh .acts{display:flex;gap:6px;justify-content:flex-end}
+.ir{grid-template-columns:minmax(150px,1fr) 2.3fr;align-items:start}
+.src{display:grid;grid-template-columns:minmax(120px,1.2fr) 110px minmax(120px,1.6fr) 32px;gap:8px;align-items:center;margin-bottom:8px}
+.src .meta{font-size:12px;color:var(--mute)}
+.src .meta a{color:var(--ink)}
+.pr{display:flex;align-items:center;gap:4px}
+.x{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--mute);cursor:pointer;font:inherit;font-size:18px;line-height:1}
+.x:hover{border-color:var(--out);color:var(--out)}
+.addsel{max-width:240px}
+.addrow{display:flex;gap:10px;flex-wrap:wrap;padding:14px 16px;border-top:1px solid var(--line);align-items:end}
+.addrow>div{flex:1;min-width:150px}
+.flash{background:rgba(255,210,63,.22)}
+.login{min-height:100vh;display:grid;place-items:center;padding:20px;grid-template-columns:1fr}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:28px;width:min(380px,100%)}
+.card h1{font-size:26px;margin-top:22px}
+.keep{display:flex;gap:8px;align-items:center;font-size:14px;margin:14px 0 4px;color:var(--mute)}
+.err{color:var(--out);font-size:14px;min-height:20px;margin:6px 0 12px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--brand);color:var(--bg);padding:12px 18px;border-radius:8px;opacity:0;pointer-events:none;transition:.25s;max-width:90vw;font-size:14px}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
+@media(max-width:860px){main{grid-template-columns:1fr;padding:16px}aside{position:static}.row{grid-template-columns:1fr 1fr}.head{display:none}header{padding:12px 16px}.u{grid-template-columns:1fr 1fr}.sh,.ir{grid-template-columns:1fr}.sh .acts{justify-content:flex-start}.src{grid-template-columns:1fr 100px 32px}.src .meta{grid-column:1/-1}}
+@media(prefers-reduced-motion:reduce){#toast{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><i></i>Stock Balance</div>
+  <nav class="nav"><a href="index.html">Stock</a><a href="usage.html">Daily usage</a><a href="shops.html" aria-current="page">Shops</a><button id="signout" type="button">Sign out</button></nav>
+</header>
+<main class="one">
+  <section>
+    <h1>Shops</h1>
+    <p class="sub">Every place you buy from, and which items come from where. The shops listed at first are where the starting prices were found, so replace them with your own suppliers. Changes save as you go.</p>
+    <div class="table" id="shops"></div>
+
+    <h2>Where each item comes from</h2>
+    <p class="sub">An item can come from more than one shop. Prices are for one single item (one can, roll, box or pack, as described). The cart uses the cheapest shop unless you pick another there. Items marked as estimates had no reliable price, so replace them with yours.</p>
+    <div class="table" id="items"></div>
+    <button class="reset" id="reset">Reset all data to the starting list</button>
+  </section>
+</main>
+<div id="toast" role="status"></div>
+<script>
+// Shared by every page. All data is saved in this browser (localStorage).
+const KEY = "stockbalance.v1";
+const CATS = ["Cleaning and waste", "Boxes", "Packing materials", "Labels and paper"];
+
+function P(shop, price, vat, url, est) { return { shop, price, vat: vat || "", url: url || "", est: !!est }; }
+const U = {
+  raja: "https://www.rajapack.co.uk/cardboard-boxes/standard-boxes_C1010.html",
+  globe: "https://www.globepackaging.co.uk/learning/best-boxes-for-shipping-electronics-types-prices-where-to-buy"
+};
+
+// Starter suppliers: these are where the prices below were found. Replace them with your own on the Shops page.
+const SHOPS0 = [
+  ["cfs", "CFS", "https://www.cfsnet.co.uk/"],
+  ["gtse", "GTSE", "https://gtse.co.uk/"],
+  ["aos", "AOS Online", "https://www.aosonline.co.uk/"],
+  ["safety", "The Safety Supply Company", "https://www.thesafetysupplycompany.co.uk/"],
+  ["raja", "Rajapack", "https://www.rajapack.co.uk/"],
+  ["globe", "Globe Packaging", "https://www.globepackaging.co.uk/"],
+  ["mailcoms", "Mailcoms", "https://shop.mailcoms.co.uk/"],
+  ["cableties", "Cableties.co.uk", "https://cableties.co.uk/"],
+  ["smartuk", "SmartUK", "https://www.smartuk.net/"],
+  ["pronto", "Pronto Direct", "https://www.prontodirect.co.uk/"],
+  ["cdm", "CDM Labels", "https://cdmlabels.co.uk/"]
+].map(([id, name, url]) => ({ id, name, url, notes: "" }));
+
+// id, name, detail, category, usual order quantity, in stock, used per day, level shown as full, shops
+const ITEMS0 = [
+  [1, "Isopropyl alcohol (IPA)", "5 L bottle", "Cleaning and waste", 2, 3, 0.1, 6, [P("cfs", 21.60, "inc", "https://www.cfsnet.co.uk/s-ais002%2d005/isopropyl-alcohol-5-litre/")]],
+  [2, "Sticker remover", "400 ml can", "Cleaning and waste", 12, 5, 0.15, 12, [P("gtse", 3.36, "", "https://gtse.co.uk/label-remover-spray-400ml-box-of-12")]],
+  [3, "Compressed air spray", "400 ml can", "Cleaning and waste", 6, 4, 0.3, 12, [P("gtse", 3.51, "", "https://gtse.co.uk/air-duster-400ml")]],
+  [4, "Window cleaner", "5 L bottle", "Cleaning and waste", 2, 2, 0.1, 4, [P("aos", 10.56, "inc", "https://www.aosonline.co.uk/prdctrl-2work-glass-and-window-cleaner-5-litre-701-846beae4")]],
+  [5, "All-purpose foam cleaner", "500 ml can", "Cleaning and waste", 6, 3, 0.2, 8, [P("safety", 4.32, "inc", "https://www.thesafetysupplycompany.co.uk/p/9537228/prosolve-odourless-foam-cleaner-500ml-pv-ofc5a")]],
+  [6, "Bin bags", "Pack of 100", "Cleaning and waste", 2, 3, 0.1, 6, [P("smartuk", 16.28, "ex", "https://www.smartuk.net/bin-bags/")]],
+  [7, "Small box", "Single wall cardboard", "Boxes", 50, 60, 5, 150, [P("raja", 0.45, "ex", U.raja)]],
+  [8, "Medium box", "Single wall cardboard", "Boxes", 50, 40, 4, 100, [P("raja", 0.51, "ex", U.raja)]],
+  [9, "Large box", "Single wall cardboard", "Boxes", 25, 25, 2, 60, [P("raja", 1.34, "ex", U.raja)]],
+  [10, "Laptop box", "Double wall cardboard", "Boxes", 10, 12, 1, 30, [P("globe", 2.10, "ex", U.globe)]],
+  [11, "Phone box", "Small cardboard box", "Boxes", 50, 30, 3, 60, [P("globe", 1.00, "ex", U.globe, true)]],
+  [12, "Screen box", "Double wall, monitor size", "Boxes", 5, 8, 0.5, 20, [P("globe", 4.19, "ex", U.globe)]],
+  [13, "Support box (inner)", "Holds a laptop steady inside a bigger box", "Boxes", 25, 20, 1.5, 40, [P("raja", 0.45, "ex", U.raja, true)]],
+  [14, "Honeycomb paper", "500 mm × 250 m roll", "Packing materials", 1, 2, 0.05, 4, [P("aos", 65.64, "inc", "https://www.aosonline.co.uk/prdctrl-honeycomb-kraft-paper-80gsm-500mmx250m-lwp80hex-ac1efec5")]],
+  [15, "Masking tape", "24 mm × 50 m roll", "Packing materials", 24, 15, 0.5, 36, [P("cableties", 0.97, "", "https://cableties.co.uk/products/box-of-masking-tape-24mm")]],
+  [16, "Brown tape", "48 mm × 66 m roll", "Packing materials", 12, 10, 1, 36, [P("mailcoms", 1.60, "inc", "https://shop.mailcoms.co.uk/products/rolls-of-brown-packing-parcel-tape-48mmx66m")]],
+  [17, "Love labels", "Roll", "Labels and paper", 1, 6, 0.4, 12, []],
+  [18, "Receipt paper", "80 × 80 mm thermal roll", "Labels and paper", 20, 25, 1.5, 60, [P("pronto", 0.85, "inc", "https://www.prontodirect.co.uk/thermal-till-roll-80-x-80mm/")]],
+  [19, "Standard labels", "100 × 150 mm thermal roll", "Labels and paper", 12, 14, 0.8, 36, [P("cdm", 3.95, "", "https://cdmlabels.co.uk/products/100-x-150mm-direct-thermal-labels-economy-25mm-core")]]
+].map(([id, n, d, cat, pack, have, rate, target, src]) => ({ id, n, d, cat, pack, have, rate, target, src }));
+
+const today = () => { const d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 864e5); };
+const r2 = v => Math.round(v * 100) / 100;
+const r1 = v => Math.round(v * 10) / 10;
+const fmt = v => String(r1(v));
+const gbp = v => "£" + Number(v).toFixed(2);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function fresh() {
+  return { shops: SHOPS0.map(s => ({ ...s })), items: ITEMS0.map(i => ({ ...i, src: i.src.map(x => ({ ...x })) })), last: today() };
+}
+function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+function load() {
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+  if (!s || !Array.isArray(s.shops) || !Array.isArray(s.items)) s = fresh();
+  const days = today() - s.last;
+  if (days > 0) { // stock drops by each item's daily usage for every day that has passed
+    s.items.forEach(i => { i.have = Math.max(0, r2(i.have - i.rate * days)); });
+    s.last = today();
+  }
+  save(s);
+  return s;
+}
+function reset() { try { localStorage.removeItem(KEY); } catch (e) {} return load(); }
+
+const stat = i => r1(i.have) <= 0 ? "out" : i.have / i.target <= 0.4 ? "low" : "ok";
+function lasts(i) {
+  if (r1(i.have) <= 0) return "Out now";
+  if (!(i.rate > 0)) return "No daily use set";
+  const d = Math.floor(i.have / i.rate);
+  return d === 0 ? "Less than a day" : "About " + d + (d === 1 ? " day" : " days");
+}
+const groups = list => CATS.map(c => ({ c, items: list.filter(i => i.cat === c) })).filter(g => g.items.length);
+const shopOf = (S, id) => S.shops.find(s => s.id === id);
+const shopName = (S, id) => { const s = shopOf(S, id); return s ? s.name : "Unknown shop"; };
+function cheapest(i) {
+  const p = i.src.filter(x => x.price != null);
+  if (p.length) return p.reduce((a, b) => b.price < a.price ? b : a);
+  return i.src[0] || null;
+}
+const vatText = v => v === "inc" ? "inc VAT" : v === "ex" ? "ex VAT" : "VAT not stated";
+
+function toast(t) {
+  const e = document.getElementById("toast");
+  if (!e) return;
+  e.textContent = t; e.classList.add("show");
+  clearTimeout(toast.h); toast.h = setTimeout(() => e.classList.remove("show"), 2600);
+}
+document.addEventListener("click", e => {
+  if (e.target.id === "signout") {
+    try { sessionStorage.removeItem("sb.auth"); localStorage.removeItem("sb.auth"); } catch (x) {}
+    location.href = "login.html";
+  }
+});
+</script>
+<script>
+let S = load();
+const normUrl = v => { v = v.trim(); return v && !/^https?:\/\//i.test(v) ? "https://" + v : v; };
+const find = id => S.items.find(i => i.id == id);
+
+function renderShops() {
+  let h = '<div class="row head sh"><div>Shop</div><div>Website</div><div>Notes</div><div></div></div>';
+  S.shops.forEach(s => {
+    h += `<div class="row sh">
+      <div><label class="lab" for="n-${esc(s.id)}">Name</label><input class="txt" id="n-${esc(s.id)}" value="${esc(s.name)}" data-sn="${esc(s.id)}"></div>
+      <div><label class="lab" for="u-${esc(s.id)}">Website</label><input class="txt" id="u-${esc(s.id)}" type="url" value="${esc(s.url)}" placeholder="https://" data-su="${esc(s.id)}"></div>
+      <div><label class="lab" for="o-${esc(s.id)}">Notes</label><input class="txt" id="o-${esc(s.id)}" value="${esc(s.notes)}" placeholder="Delivery days, minimum order" data-so="${esc(s.id)}"></div>
+      <div class="acts">${s.url ? `<a class="add" href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">Open site</a>` : ""}<button class="add danger" data-sd="${esc(s.id)}">Remove</button></div></div>`;
+  });
+  if (!S.shops.length) h += '<div class="row"><div class="empty">No shops yet. Add your first one below.</div></div>';
+  h += `<div class="addrow"><div><label class="lab" for="newname">New shop name</label><input class="txt" id="newname" placeholder="Shop name"></div>
+    <div><label class="lab" for="newurl">Website</label><input class="txt" id="newurl" placeholder="https://"></div>
+    <button class="add" id="addshop">Add shop</button></div>`;
+  document.getElementById("shops").innerHTML = h;
+}
+
+function renderItems() {
+  let h = '<div class="row head ir"><div>Item</div><div>Shops and price each</div></div>';
+  groups(S.items).forEach(g => {
+    h += `<div class="cat"><span>${g.c}</span></div>`;
+    g.items.forEach(i => {
+      const ch = cheapest(i);
+      const srcs = i.src.map((x, k) => {
+        const opts = S.shops.map(s => `<option value="${esc(s.id)}"${s.id === x.shop ? " selected" : ""}>${esc(s.name)}</option>`).join("");
+        const cheap = ch === x && i.src.length > 1 && x.price != null ? ' <span class="tag ok">Cheapest</span>' : "";
+        const vat = x.est ? '<span class="tag low" title="No reliable price was found. Replace it with yours.">Estimate</span>' : esc(vatText(x.vat));
+        return `<div class="src"><select class="txt" data-ss="${i.id}:${k}" aria-label="Shop for ${esc(i.n)}">${opts}</select>
+          <span class="pr"><span>£</span><input class="txt" type="number" min="0" step="any" value="${x.price == null ? "" : x.price}" placeholder="Price" data-sp="${i.id}:${k}" aria-label="Price of ${esc(i.n)} at ${esc(shopName(S, x.shop))}"></span>
+          <span class="meta">${vat}${cheap}${x.url ? ` · <a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">View product</a>` : ""}</span>
+          <button class="x" data-sr="${i.id}:${k}" aria-label="Unlink ${esc(shopName(S, x.shop))} from ${esc(i.n)}">×</button></div>`;
+      }).join("");
+      const free = S.shops.filter(s => !i.src.some(x => x.shop === s.id));
+      const add = free.length ? `<select class="txt addsel" data-sa="${i.id}" aria-label="Link a shop to ${esc(i.n)}"><option value="">Link a shop…</option>${free.map(s => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join("")}</select>` : "";
+      const status = i.src.length ? i.src.length + " shop" + (i.src.length > 1 ? "s" : "") : '<span class="low">Not linked to a shop yet</span>';
+      h += `<div class="row ir" id="item-${i.id}"><div class="name"><b>${esc(i.n)}</b><small>${esc(i.d)} · ${status}</small></div><div>${srcs}${add}</div></div>`;
+    });
+  });
+  document.getElementById("items").innerHTML = h;
+}
+
+const render = () => { renderShops(); renderItems(); };
+const done = msg => { save(S); render(); toast(msg); };
+
+document.addEventListener("change", e => {
+  const t = e.target, d = t.dataset;
+  if (d.sn) { const s = S.shops.find(x => x.id === d.sn), v = t.value.trim(); if (!v) { t.value = s.name; return toast("A shop needs a name"); } s.name = v; done("Saved " + v); }
+  else if (d.su) { const s = S.shops.find(x => x.id === d.su); s.url = normUrl(t.value); done("Saved " + s.name); }
+  else if (d.so) { const s = S.shops.find(x => x.id === d.so); s.notes = t.value.trim(); save(S); toast("Saved " + s.name); }
+  else if (d.ss) {
+    const [id, k] = d.ss.split(":"), i = find(id);
+    if (i.src.some((x, n) => n != k && x.shop === t.value)) { toast("That shop is already linked to " + i.n); return render(); }
+    i.src[k].shop = t.value; done("Saved " + i.n);
+  }
+  else if (d.sp) {
+    const [id, k] = d.sp.split(":"), i = find(id), v = parseFloat(t.value);
+    i.src[k].price = isNaN(v) || v < 0 ? null : r2(v); i.src[k].est = false; done("Saved " + i.n);
+  }
+  else if (d.sa) { if (!t.value) return; const i = find(d.sa); i.src.push({ shop: t.value, price: null, vat: "", url: "", est: false }); done("Linked " + shopName(S, t.value) + " to " + i.n + ". Add its price."); }
+});
+
+document.addEventListener("click", e => {
+  const t = e.target, d = t.dataset;
+  if (d.sd) {
+    const s = S.shops.find(x => x.id === d.sd);
+    if (!confirm("Remove " + s.name + "? Its price links on every item will be removed too.")) return;
+    S.shops = S.shops.filter(x => x.id !== s.id);
+    S.items.forEach(i => { i.src = i.src.filter(x => x.shop !== s.id); });
+    done("Removed " + s.name);
+  }
+  else if (d.sr) { const [id, k] = d.sr.split(":"), i = find(id), name = shopName(S, i.src[k].shop); i.src.splice(k, 1); done("Unlinked " + name + " from " + i.n); }
+  else if (t.id === "addshop") {
+    const n = document.getElementById("newname").value.trim();
+    if (!n) return toast("Enter a shop name first");
+    S.shops.push({ id: "s" + Date.now().toString(36) + Math.floor(Math.random() * 1e3), name: n, url: normUrl(document.getElementById("newurl").value), notes: "" });
+    done("Added " + n);
+  }
+  else if (t.id === "reset") { if (confirm("Reset every item, shop and price to the starting list? Your stock counts will be lost.")) { S = reset(); render(); toast("Starting list restored"); } }
+});
+
+render();
+if (location.hash) { const el = document.getElementById(location.hash.slice(1)); if (el) { el.scrollIntoView({ block: "center" }); el.classList.add("flash"); } }
+</script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stock Balance · Sign in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f2;--panel:#fff;--ink:#12303a;--mute:#5b727a;--line:#d5e0de;--ok:#1f8a70;--low:#b86e00;--out:#c23b3b;--brand:#12303a;--hi:#ffd23f}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1c20;--panel:#172a30;--ink:#e6f0ee;--mute:#93aab1;--line:#2a4249;--ok:#4cc3a4;--low:#f0a53a;--out:#ee7070;--brand:#e6f0ee;--hi:#ffd23f}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.45}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px 16px;padding:14px 28px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+.logo{font-weight:800;font-size:22px;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+.logo i{width:14px;height:22px;background:var(--hi);border-radius:3px;border:2px solid var(--brand);display:inline-block}
+.nav{display:flex;gap:6px;flex-wrap:wrap}
+.nav a,.nav button{font:inherit;font-size:15px;font-weight:600;color:var(--ink);text-decoration:none;padding:7px 14px;border-radius:999px;border:1px solid transparent;background:transparent;cursor:pointer}
+.nav a[aria-current=page]{background:var(--brand);color:var(--bg)}
+.nav a:not([aria-current]):hover,.nav button:hover{border-color:var(--line)}
+.nav button{color:var(--mute)}
+main{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:24px;padding:24px 28px;max-width:1200px;margin:0 auto}
+main.one{grid-template-columns:minmax(0,1fr);max-width:1000px}
+h1{font-size:30px;line-height:1.15;margin:0 0 6px;letter-spacing:-.02em;font-weight:800}
+h2{margin:28px 0 4px;font-size:22px;letter-spacing:-.01em}
+aside h2{margin:0 0 4px;font-size:20px}
+.sub{color:var(--mute);margin:0 0 18px;max-width:70ch}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.chip,.bar button,.bar input,.bar select{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:7px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--brand);color:var(--bg);border-color:var(--brand)}
+.bar input{cursor:text;border-radius:8px;min-width:170px}
+.bar select{border-radius:8px}
+.bar .spacer{flex:1}
+.addall{background:var(--hi)!important;color:#12303a!important;border-color:#12303a!important;font-weight:600}
+.table{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.row{display:grid;grid-template-columns:minmax(150px,1.5fr) minmax(130px,1.3fr) 130px 120px;gap:14px;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.head{font-size:13px;color:var(--mute);background:var(--bg)}
+.cat{display:flex;justify-content:space-between;align-items:baseline;padding:8px 16px;background:var(--bg);border-top:1px solid var(--line);font-weight:800;font-size:15px}
+.cat span:last-child{font-weight:400;font-size:13px;color:var(--mute)}
+.name b{display:block;font-weight:600}
+.name small{color:var(--mute)}
+.lvl{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.lvl div{height:100%;border-radius:4px}
+.qty{font-size:13px;color:var(--mute);margin-top:4px}
+.tag{font-size:13px;font-weight:600}
+.ok{color:var(--ok)}.low{color:var(--low)}.out{color:var(--out)}
+.bg-ok{background:var(--ok)}.bg-low{background:var(--low)}.bg-out{background:var(--out)}
+.add{font:inherit;font-size:14px;padding:7px 10px;border-radius:8px;border:1px solid var(--brand);background:transparent;color:var(--ink);cursor:pointer;font-weight:600;text-decoration:none;display:inline-block;text-align:center}
+.add:hover{background:var(--brand);color:var(--bg)}
+.add:disabled{opacity:.45;cursor:default;background:transparent;color:var(--ink)}
+.danger{border-color:var(--line);color:var(--mute)}
+.danger:hover{background:var(--out);border-color:var(--out);color:#fff}
+.adj{display:inline-flex;align-items:center;gap:4px}
+.adj button{width:30px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;font:inherit;font-size:18px;line-height:1}
+.adj button:hover{border-color:var(--brand)}
+.adj input,.u input{font:inherit;width:64px;text-align:center;padding:6px 4px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.u{grid-template-columns:minmax(150px,1.5fr) 130px 130px minmax(110px,1fr)}
+.u label,.lab{font-size:12px;color:var(--mute);display:block;margin-bottom:3px}
+.reset{font:inherit;font-size:14px;margin-top:16px;padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--mute);cursor:pointer}
+aside{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;align-self:start;position:sticky;top:16px}
+.empty{color:var(--mute);font-size:14px;padding:14px 0}
+.sup{margin-top:14px}
+.sup h3{font-size:14px;margin:0 0 6px;display:flex;justify-content:space-between;border-bottom:2px solid var(--hi);padding-bottom:4px}
+.line{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;font-size:14px;padding:6px 0}
+.step{display:inline-flex;align-items:center;gap:6px;margin:2px 0}
+.step button{width:24px;height:24px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;font:inherit}
+.total{display:flex;justify-content:space-between;font-weight:800;font-size:18px;margin:16px 0 10px;padding-top:12px;border-top:1px solid var(--line)}
+.buy{width:100%;font:inherit;font-weight:800;font-size:16px;padding:12px;border-radius:8px;border:2px solid var(--brand);background:var(--hi);color:#12303a;cursor:pointer}
+.buy:disabled{opacity:.45;cursor:default}
+.note{font-size:12px;color:var(--mute);margin-top:8px}
+.txt,select.mini{font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);width:100%}
+select.mini{font-size:12px;padding:4px 6px;width:auto;max-width:190px}
+.sh{grid-template-columns:minmax(130px,1fr) minmax(150px,1.3fr) minmax(130px,1.2fr) 160px;align-items:end}
+.sh.head{align-items:center}
+.sh .acts{display:flex;gap:6px;justify-content:flex-end}
+.ir{grid-template-columns:minmax(150px,1fr) 2.3fr;align-items:start}
+.src{display:grid;grid-template-columns:minmax(120px,1.2fr) 110px minmax(120px,1.6fr) 32px;gap:8px;align-items:center;margin-bottom:8px}
+.src .meta{font-size:12px;color:var(--mute)}
+.src .meta a{color:var(--ink)}
+.pr{display:flex;align-items:center;gap:4px}
+.x{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--mute);cursor:pointer;font:inherit;font-size:18px;line-height:1}
+.x:hover{border-color:var(--out);color:var(--out)}
+.addsel{max-width:240px}
+.addrow{display:flex;gap:10px;flex-wrap:wrap;padding:14px 16px;border-top:1px solid var(--line);align-items:end}
+.addrow>div{flex:1;min-width:150px}
+.flash{background:rgba(255,210,63,.22)}
+.login{min-height:100vh;display:grid;place-items:center;padding:20px;grid-template-columns:1fr}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:28px;width:min(380px,100%)}
+.card h1{font-size:26px;margin-top:22px}
+.keep{display:flex;gap:8px;align-items:center;font-size:14px;margin:14px 0 4px;color:var(--mute)}
+.err{color:var(--out);font-size:14px;min-height:20px;margin:6px 0 12px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--brand);color:var(--bg);padding:12px 18px;border-radius:8px;opacity:0;pointer-events:none;transition:.25s;max-width:90vw;font-size:14px}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
+@media(max-width:860px){main{grid-template-columns:1fr;padding:16px}aside{position:static}.row{grid-template-columns:1fr 1fr}.head{display:none}header{padding:12px 16px}.u{grid-template-columns:1fr 1fr}.sh,.ir{grid-template-columns:1fr}.sh .acts{justify-content:flex-start}.src{grid-template-columns:1fr 100px 32px}.src .meta{grid-column:1/-1}}
+@media(prefers-reduced-motion:reduce){#toast{transition:none}}
+</style>
+</head>
+<body>
+<main class="login">
+  <form class="card" id="f">
+    <div class="logo"><i></i>Stock Balance</div>
+    <h1>Sign in</h1>
+    <p class="sub">Enter the password to see stock levels and shops.</p>
+    <label class="lab" for="pw">Password</label>
+    <input class="txt" id="pw" type="password" autocomplete="current-password" required autofocus>
+    <label class="keep"><input type="checkbox" id="keep"> Keep me signed in on this device</label>
+    <p class="err" id="err" role="alert"></p>
+    <button class="buy" type="submit">Sign in</button>
+  </form>
+</main>
+<script>
+const H = "f986ce1418f6c82ee59285320f77a3cba0c3fd2842aafd6e0e7398920a13579c", TOKEN = "sb.auth";
+const sha = async s => {
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("");
+};
+try { if (sessionStorage.getItem(TOKEN) === H || localStorage.getItem(TOKEN) === H) location.replace("index.html"); } catch (e) {}
+document.getElementById("f").addEventListener("submit", async e => {
+  e.preventDefault();
+  const err = document.getElementById("err"), pw = document.getElementById("pw");
+  err.textContent = "";
+  if (!(window.crypto && crypto.subtle)) { err.textContent = "This page needs to be opened over https to check the password."; return; }
+  const ok = (await sha("stockbalance|" + pw.value)) === H;
+  if (!ok) { await new Promise(r => setTimeout(r, 800)); err.textContent = "That password isn't right. Try again."; pw.value = ""; pw.focus(); return; }
+  try {
+    sessionStorage.removeItem(TOKEN); localStorage.removeItem(TOKEN);
+    (document.getElementById("keep").checked ? localStorage : sessionStorage).setItem(TOKEN, H);
+  } catch (x) { err.textContent = "This browser is blocking storage, so the sign-in can't be remembered."; return; }
+  location.replace("index.html");
+});
+</script>
+</body>
+</html>

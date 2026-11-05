@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Supply Room · Stock</title>
+<title>Stock Balance · Stock</title>
+<script>(function(){var h="f986ce1418f6c82ee59285320f77a3cba0c3fd2842aafd6e0e7398920a13579c",ok=false;try{ok=sessionStorage.getItem("sb.auth")===h||localStorage.getItem("sb.auth")===h}catch(e){}if(!ok){document.documentElement.style.display="none";location.replace("login.html")}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -11,23 +12,35 @@
 @media (prefers-color-scheme:dark){:root{--bg:#0f1c20;--panel:#172a30;--ink:#e6f0ee;--mute:#93aab1;--line:#2a4249;--ok:#4cc3a4;--low:#f0a53a;--out:#ee7070;--brand:#e6f0ee;--hi:#ffd23f}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.45}
-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 28px;border-bottom:1px solid var(--line);background:var(--panel)}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px 16px;padding:14px 28px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
 .logo{font-weight:800;font-size:22px;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
 .logo i{width:14px;height:22px;background:var(--hi);border-radius:3px;border:2px solid var(--brand);display:inline-block}
-header span{color:var(--mute);font-size:14px}
-main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;padding:24px 28px;max-width:1180px;margin:0 auto}
+.nav{display:flex;gap:6px;flex-wrap:wrap}
+.nav a,.nav button{font:inherit;font-size:15px;font-weight:600;color:var(--ink);text-decoration:none;padding:7px 14px;border-radius:999px;border:1px solid transparent;background:transparent;cursor:pointer}
+.nav a[aria-current=page]{background:var(--brand);color:var(--bg)}
+.nav a:not([aria-current]):hover,.nav button:hover{border-color:var(--line)}
+.nav button{color:var(--mute)}
+main{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:24px;padding:24px 28px;max-width:1200px;margin:0 auto}
+main.one{grid-template-columns:minmax(0,1fr);max-width:1000px}
 h1{font-size:30px;line-height:1.15;margin:0 0 6px;letter-spacing:-.02em;font-weight:800}
-.sub{color:var(--mute);margin:0 0 18px}
+h2{margin:28px 0 4px;font-size:22px;letter-spacing:-.01em}
+aside h2{margin:0 0 4px;font-size:20px}
+.sub{color:var(--mute);margin:0 0 18px;max-width:70ch}
 .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
-.chip,.bar button,.bar input{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:7px 12px;border-radius:999px;cursor:pointer}
+.chip,.bar button,.bar input,.bar select{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:7px 12px;border-radius:999px;cursor:pointer}
 .chip[aria-pressed=true]{background:var(--brand);color:var(--bg);border-color:var(--brand)}
 .bar input{cursor:text;border-radius:8px;min-width:170px}
+.bar select{border-radius:8px}
 .bar .spacer{flex:1}
 .addall{background:var(--hi)!important;color:#12303a!important;border-color:#12303a!important;font-weight:600}
 .table{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.row{display:grid;grid-template-columns:minmax(150px,1.5fr) minmax(130px,1.3fr) 130px 110px;gap:14px;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:minmax(150px,1.5fr) minmax(130px,1.3fr) 130px 120px;gap:14px;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
 .row:first-child{border-top:0}
 .head{font-size:13px;color:var(--mute);background:var(--bg)}
+.cat{display:flex;justify-content:space-between;align-items:baseline;padding:8px 16px;background:var(--bg);border-top:1px solid var(--line);font-weight:800;font-size:15px}
+.cat span:last-child{font-weight:400;font-size:13px;color:var(--mute)}
 .name b{display:block;font-weight:600}
 .name small{color:var(--mute)}
 .lvl{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
@@ -36,47 +49,61 @@ h1{font-size:30px;line-height:1.15;margin:0 0 6px;letter-spacing:-.02em;font-wei
 .tag{font-size:13px;font-weight:600}
 .ok{color:var(--ok)}.low{color:var(--low)}.out{color:var(--out)}
 .bg-ok{background:var(--ok)}.bg-low{background:var(--low)}.bg-out{background:var(--out)}
-.add{font:inherit;font-size:14px;padding:7px 10px;border-radius:8px;border:1px solid var(--brand);background:transparent;color:var(--ink);cursor:pointer;font-weight:600}
+.add{font:inherit;font-size:14px;padding:7px 10px;border-radius:8px;border:1px solid var(--brand);background:transparent;color:var(--ink);cursor:pointer;font-weight:600;text-decoration:none;display:inline-block;text-align:center}
 .add:hover{background:var(--brand);color:var(--bg)}
 .add:disabled{opacity:.45;cursor:default;background:transparent;color:var(--ink)}
+.danger{border-color:var(--line);color:var(--mute)}
+.danger:hover{background:var(--out);border-color:var(--out);color:#fff}
+.adj{display:inline-flex;align-items:center;gap:4px}
+.adj button{width:30px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;font:inherit;font-size:18px;line-height:1}
+.adj button:hover{border-color:var(--brand)}
+.adj input,.u input{font:inherit;width:64px;text-align:center;padding:6px 4px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.u{grid-template-columns:minmax(150px,1.5fr) 130px 130px minmax(110px,1fr)}
+.u label,.lab{font-size:12px;color:var(--mute);display:block;margin-bottom:3px}
+.reset{font:inherit;font-size:14px;margin-top:16px;padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--mute);cursor:pointer}
 aside{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;align-self:start;position:sticky;top:16px}
-aside h2{margin:0 0 4px;font-size:20px}
 .empty{color:var(--mute);font-size:14px;padding:14px 0}
 .sup{margin-top:14px}
 .sup h3{font-size:14px;margin:0 0 6px;display:flex;justify-content:space-between;border-bottom:2px solid var(--hi);padding-bottom:4px}
-.line{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px;padding:5px 0}
-.step{display:inline-flex;align-items:center;gap:6px;margin-top:2px}
+.line{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;font-size:14px;padding:6px 0}
+.step{display:inline-flex;align-items:center;gap:6px;margin:2px 0}
 .step button{width:24px;height:24px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;font:inherit}
 .total{display:flex;justify-content:space-between;font-weight:800;font-size:18px;margin:16px 0 10px;padding-top:12px;border-top:1px solid var(--line)}
 .buy{width:100%;font:inherit;font-weight:800;font-size:16px;padding:12px;border-radius:8px;border:2px solid var(--brand);background:var(--hi);color:#12303a;cursor:pointer}
 .buy:disabled{opacity:.45;cursor:default}
 .note{font-size:12px;color:var(--mute);margin-top:8px}
+.txt,select.mini{font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);width:100%}
+select.mini{font-size:12px;padding:4px 6px;width:auto;max-width:190px}
+.sh{grid-template-columns:minmax(130px,1fr) minmax(150px,1.3fr) minmax(130px,1.2fr) 160px;align-items:end}
+.sh.head{align-items:center}
+.sh .acts{display:flex;gap:6px;justify-content:flex-end}
+.ir{grid-template-columns:minmax(150px,1fr) 2.3fr;align-items:start}
+.src{display:grid;grid-template-columns:minmax(120px,1.2fr) 110px minmax(120px,1.6fr) 32px;gap:8px;align-items:center;margin-bottom:8px}
+.src .meta{font-size:12px;color:var(--mute)}
+.src .meta a{color:var(--ink)}
+.pr{display:flex;align-items:center;gap:4px}
+.x{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--mute);cursor:pointer;font:inherit;font-size:18px;line-height:1}
+.x:hover{border-color:var(--out);color:var(--out)}
+.addsel{max-width:240px}
+.addrow{display:flex;gap:10px;flex-wrap:wrap;padding:14px 16px;border-top:1px solid var(--line);align-items:end}
+.addrow>div{flex:1;min-width:150px}
+.flash{background:rgba(255,210,63,.22)}
+.login{min-height:100vh;display:grid;place-items:center;padding:20px;grid-template-columns:1fr}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:28px;width:min(380px,100%)}
+.card h1{font-size:26px;margin-top:22px}
+.keep{display:flex;gap:8px;align-items:center;font-size:14px;margin:14px 0 4px;color:var(--mute)}
+.err{color:var(--out);font-size:14px;min-height:20px;margin:6px 0 12px}
 #toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--brand);color:var(--bg);padding:12px 18px;border-radius:8px;opacity:0;pointer-events:none;transition:.25s;max-width:90vw;font-size:14px}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 :focus-visible{outline:3px solid var(--hi);outline-offset:2px}
-@media(max-width:860px){main{grid-template-columns:1fr;padding:16px}aside{position:static}.row{grid-template-columns:1fr 1fr}.head{display:none}header{padding:14px 16px}}
+@media(max-width:860px){main{grid-template-columns:1fr;padding:16px}aside{position:static}.row{grid-template-columns:1fr 1fr}.head{display:none}header{padding:12px 16px}.u{grid-template-columns:1fr 1fr}.sh,.ir{grid-template-columns:1fr}.sh .acts{justify-content:flex-start}.src{grid-template-columns:1fr 100px 32px}.src .meta{grid-column:1/-1}}
 @media(prefers-reduced-motion:reduce){#toast{transition:none}}
-.nav{display:flex;gap:6px}
-.nav a{color:var(--ink);text-decoration:none;font-size:15px;font-weight:600;padding:7px 14px;border-radius:999px;border:1px solid transparent}
-.nav a[aria-current=page]{background:var(--brand);color:var(--bg)}
-.nav a:not([aria-current]):hover{border-color:var(--line)}
-.adj{display:inline-flex;align-items:center;gap:4px}
-.adj button{width:30px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;font:inherit;font-size:18px;line-height:1}
-.adj button:hover{border-color:var(--brand)}
-.adj input,.u input{font:inherit;width:62px;text-align:center;padding:6px 4px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
-main.one{grid-template-columns:minmax(0,1fr);max-width:900px}
-.u{grid-template-columns:minmax(150px,1.5fr) 130px 130px minmax(110px,1fr)}
-.u label{font-size:12px;color:var(--mute);display:block;margin-bottom:3px}
-.reset{font:inherit;font-size:14px;margin-top:16px;padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--mute);cursor:pointer}
-@media(max-width:860px){.u{grid-template-columns:1fr 1fr}}
-input[type=number]{-moz-appearance:textfield;appearance:textfield}
-input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 </style>
 </head>
 <body>
 <header>
-  <div class="logo"><i></i>Supply Room</div>
-  <nav class="nav"><a href="index.html" aria-current="page">Stock</a><a href="usage.html">Daily usage</a></nav>
+  <div class="logo"><i></i>Stock Balance</div>
+  <nav class="nav"><a href="index.html" aria-current="page">Stock</a><a href="usage.html">Daily usage</a><a href="shops.html">Shops</a><button id="signout" type="button">Sign out</button></nav>
 </header>
 <main>
   <section>
@@ -86,6 +113,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
       <button class="chip" data-f="all" aria-pressed="true">All items</button>
       <button class="chip" data-f="low" aria-pressed="false">Running low</button>
       <button class="chip" data-f="ok" aria-pressed="false">Well stocked</button>
+      <select id="cat" aria-label="Category"></select>
       <input id="q" type="search" placeholder="Search items" aria-label="Search items">
       <span class="spacer"></span>
       <button class="addall" id="addall">Add all low items</button>
@@ -99,32 +127,69 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 </main>
 <div id="toast" role="status"></div>
 <script>
-// Shared by index.html and usage.html. Data is saved in this browser (localStorage).
-const KEY = "supplyroom.v1";
-const DEFAULTS = [
-  {id:1, n:"Multi-surface spray", d:"750 ml bottle", s:"BrightSource", p:2.4, pack:6, have:3, rate:0.3, target:12},
-  {id:2, n:"Thick bleach", d:"5 L bottle", s:"BrightSource", p:6.8, pack:2, have:2, rate:0.1, target:6},
-  {id:3, n:"Toilet roll", d:"Single roll, ordered 36 at a time", s:"Trade Hygiene Co.", p:0.52, pack:36, have:12, rate:1, target:36},
-  {id:4, n:"Hand soap refill", d:"1 L", s:"Trade Hygiene Co.", p:3.2, pack:4, have:4, rate:0.2, target:10},
-  {id:5, n:"Paper hand towels", d:"Case of 15 packs", s:"Trade Hygiene Co.", p:24, pack:1, have:3, rate:0.1, target:5},
-  {id:6, n:"Bin liners", d:"Roll of 100", s:"BrightSource", p:7.9, pack:2, have:6, rate:0.2, target:8},
-  {id:7, n:"Disinfectant wipes", d:"Tub of 200", s:"BrightSource", p:4.5, pack:4, have:3, rate:0.3, target:10},
-  {id:8, n:"Floor cleaner", d:"5 L bottle", s:"BrightSource", p:9.1, pack:1, have:4, rate:0.1, target:5},
-  {id:9, n:"Nitrile gloves (M)", d:"Box of 100", s:"Trade Hygiene Co.", p:6.3, pack:4, have:7, rate:0.3, target:12},
-  {id:10, n:"Microfibre cloths", d:"Pack of 10", s:"BrightSource", p:5.6, pack:2, have:5, rate:0.1, target:6},
-  {id:11, n:"Dishwasher tablets", d:"Tub of 100", s:"Trade Hygiene Co.", p:11.2, pack:2, have:3, rate:0.2, target:6}
-];
+// Shared by every page. All data is saved in this browser (localStorage).
+const KEY = "stockbalance.v1";
+const CATS = ["Cleaning and waste", "Boxes", "Packing materials", "Labels and paper"];
+
+function P(shop, price, vat, url, est) { return { shop, price, vat: vat || "", url: url || "", est: !!est }; }
+const U = {
+  raja: "https://www.rajapack.co.uk/cardboard-boxes/standard-boxes_C1010.html",
+  globe: "https://www.globepackaging.co.uk/learning/best-boxes-for-shipping-electronics-types-prices-where-to-buy"
+};
+
+// Starter suppliers: these are where the prices below were found. Replace them with your own on the Shops page.
+const SHOPS0 = [
+  ["cfs", "CFS", "https://www.cfsnet.co.uk/"],
+  ["gtse", "GTSE", "https://gtse.co.uk/"],
+  ["aos", "AOS Online", "https://www.aosonline.co.uk/"],
+  ["safety", "The Safety Supply Company", "https://www.thesafetysupplycompany.co.uk/"],
+  ["raja", "Rajapack", "https://www.rajapack.co.uk/"],
+  ["globe", "Globe Packaging", "https://www.globepackaging.co.uk/"],
+  ["mailcoms", "Mailcoms", "https://shop.mailcoms.co.uk/"],
+  ["cableties", "Cableties.co.uk", "https://cableties.co.uk/"],
+  ["smartuk", "SmartUK", "https://www.smartuk.net/"],
+  ["pronto", "Pronto Direct", "https://www.prontodirect.co.uk/"],
+  ["cdm", "CDM Labels", "https://cdmlabels.co.uk/"]
+].map(([id, name, url]) => ({ id, name, url, notes: "" }));
+
+// id, name, detail, category, usual order quantity, in stock, used per day, level shown as full, shops
+const ITEMS0 = [
+  [1, "Isopropyl alcohol (IPA)", "5 L bottle", "Cleaning and waste", 2, 3, 0.1, 6, [P("cfs", 21.60, "inc", "https://www.cfsnet.co.uk/s-ais002%2d005/isopropyl-alcohol-5-litre/")]],
+  [2, "Sticker remover", "400 ml can", "Cleaning and waste", 12, 5, 0.15, 12, [P("gtse", 3.36, "", "https://gtse.co.uk/label-remover-spray-400ml-box-of-12")]],
+  [3, "Compressed air spray", "400 ml can", "Cleaning and waste", 6, 4, 0.3, 12, [P("gtse", 3.51, "", "https://gtse.co.uk/air-duster-400ml")]],
+  [4, "Window cleaner", "5 L bottle", "Cleaning and waste", 2, 2, 0.1, 4, [P("aos", 10.56, "inc", "https://www.aosonline.co.uk/prdctrl-2work-glass-and-window-cleaner-5-litre-701-846beae4")]],
+  [5, "All-purpose foam cleaner", "500 ml can", "Cleaning and waste", 6, 3, 0.2, 8, [P("safety", 4.32, "inc", "https://www.thesafetysupplycompany.co.uk/p/9537228/prosolve-odourless-foam-cleaner-500ml-pv-ofc5a")]],
+  [6, "Bin bags", "Pack of 100", "Cleaning and waste", 2, 3, 0.1, 6, [P("smartuk", 16.28, "ex", "https://www.smartuk.net/bin-bags/")]],
+  [7, "Small box", "Single wall cardboard", "Boxes", 50, 60, 5, 150, [P("raja", 0.45, "ex", U.raja)]],
+  [8, "Medium box", "Single wall cardboard", "Boxes", 50, 40, 4, 100, [P("raja", 0.51, "ex", U.raja)]],
+  [9, "Large box", "Single wall cardboard", "Boxes", 25, 25, 2, 60, [P("raja", 1.34, "ex", U.raja)]],
+  [10, "Laptop box", "Double wall cardboard", "Boxes", 10, 12, 1, 30, [P("globe", 2.10, "ex", U.globe)]],
+  [11, "Phone box", "Small cardboard box", "Boxes", 50, 30, 3, 60, [P("globe", 1.00, "ex", U.globe, true)]],
+  [12, "Screen box", "Double wall, monitor size", "Boxes", 5, 8, 0.5, 20, [P("globe", 4.19, "ex", U.globe)]],
+  [13, "Support box (inner)", "Holds a laptop steady inside a bigger box", "Boxes", 25, 20, 1.5, 40, [P("raja", 0.45, "ex", U.raja, true)]],
+  [14, "Honeycomb paper", "500 mm × 250 m roll", "Packing materials", 1, 2, 0.05, 4, [P("aos", 65.64, "inc", "https://www.aosonline.co.uk/prdctrl-honeycomb-kraft-paper-80gsm-500mmx250m-lwp80hex-ac1efec5")]],
+  [15, "Masking tape", "24 mm × 50 m roll", "Packing materials", 24, 15, 0.5, 36, [P("cableties", 0.97, "", "https://cableties.co.uk/products/box-of-masking-tape-24mm")]],
+  [16, "Brown tape", "48 mm × 66 m roll", "Packing materials", 12, 10, 1, 36, [P("mailcoms", 1.60, "inc", "https://shop.mailcoms.co.uk/products/rolls-of-brown-packing-parcel-tape-48mmx66m")]],
+  [17, "Love labels", "Roll", "Labels and paper", 1, 6, 0.4, 12, []],
+  [18, "Receipt paper", "80 × 80 mm thermal roll", "Labels and paper", 20, 25, 1.5, 60, [P("pronto", 0.85, "inc", "https://www.prontodirect.co.uk/thermal-till-roll-80-x-80mm/")]],
+  [19, "Standard labels", "100 × 150 mm thermal roll", "Labels and paper", 12, 14, 0.8, 36, [P("cdm", 3.95, "", "https://cdmlabels.co.uk/products/100-x-150mm-direct-thermal-labels-economy-25mm-core")]]
+].map(([id, n, d, cat, pack, have, rate, target, src]) => ({ id, n, d, cat, pack, have, rate, target, src }));
+
 const today = () => { const d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 864e5); };
 const r2 = v => Math.round(v * 100) / 100;
 const r1 = v => Math.round(v * 10) / 10;
 const fmt = v => String(r1(v));
-const gbp = v => "£" + v.toFixed(2);
+const gbp = v => "£" + Number(v).toFixed(2);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+function fresh() {
+  return { shops: SHOPS0.map(s => ({ ...s })), items: ITEMS0.map(i => ({ ...i, src: i.src.map(x => ({ ...x })) })), last: today() };
+}
 function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
 function load() {
   let s = null;
   try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
-  if (!s || !Array.isArray(s.items)) s = { items: DEFAULTS.map(x => ({ ...x })), last: today() };
+  if (!s || !Array.isArray(s.shops) || !Array.isArray(s.items)) s = fresh();
   const days = today() - s.last;
   if (days > 0) { // stock drops by each item's daily usage for every day that has passed
     s.items.forEach(i => { i.have = Math.max(0, r2(i.have - i.rate * days)); });
@@ -136,57 +201,94 @@ function load() {
 function reset() { try { localStorage.removeItem(KEY); } catch (e) {} return load(); }
 
 const stat = i => r1(i.have) <= 0 ? "out" : i.have / i.target <= 0.4 ? "low" : "ok";
-const daysLeft = i => i.rate > 0 ? Math.floor(i.have / i.rate) : null;
 function lasts(i) {
   if (r1(i.have) <= 0) return "Out now";
-  const d = daysLeft(i);
-  return d === null ? "No daily use set" : d === 0 ? "Less than a day" : "About " + d + (d === 1 ? " day" : " days");
+  if (!(i.rate > 0)) return "No daily use set";
+  const d = Math.floor(i.have / i.rate);
+  return d === 0 ? "Less than a day" : "About " + d + (d === 1 ? " day" : " days");
 }
+const groups = list => CATS.map(c => ({ c, items: list.filter(i => i.cat === c) })).filter(g => g.items.length);
+const shopOf = (S, id) => S.shops.find(s => s.id === id);
+const shopName = (S, id) => { const s = shopOf(S, id); return s ? s.name : "Unknown shop"; };
+function cheapest(i) {
+  const p = i.src.filter(x => x.price != null);
+  if (p.length) return p.reduce((a, b) => b.price < a.price ? b : a);
+  return i.src[0] || null;
+}
+const vatText = v => v === "inc" ? "inc VAT" : v === "ex" ? "ex VAT" : "VAT not stated";
+
 function toast(t) {
   const e = document.getElementById("toast");
+  if (!e) return;
   e.textContent = t; e.classList.add("show");
   clearTimeout(toast.h); toast.h = setTimeout(() => e.classList.remove("show"), 2600);
 }
+document.addEventListener("click", e => {
+  if (e.target.id === "signout") {
+    try { sessionStorage.removeItem("sb.auth"); localStorage.removeItem("sb.auth"); } catch (x) {}
+    location.href = "login.html";
+  }
+});
 </script>
 <script>
 const S = load(), items = S.items, cart = {};
-let filter = "all", term = "";
+let filter = "all", cat = "all", term = "";
 const label = { ok: "Well stocked", low: "Running low", out: "Out of stock" };
+const srcOf = (i, shop) => i.src.find(x => x.shop === shop);
+
+document.getElementById("cat").innerHTML = '<option value="all">All categories</option>' + CATS.map(c => `<option>${c}</option>`).join("");
 
 function renderTable() {
   const low = items.filter(i => stat(i) !== "ok").length, out = items.filter(i => stat(i) === "out").length;
   document.getElementById("headline").textContent = low ? low + " items need reordering" + (out ? ", " + out + (out > 1 ? " are" : " is") + " out" : "") : "Everything is well stocked";
-  const list = items.filter(i => (filter === "all" || (filter === "low" ? stat(i) !== "ok" : stat(i) === "ok")) && i.n.toLowerCase().includes(term));
+  const list = items.filter(i => (filter === "all" || (filter === "low" ? stat(i) !== "ok" : stat(i) === "ok")) && (cat === "all" || i.cat === cat) && i.n.toLowerCase().includes(term));
   let h = '<div class="row head"><div>Item</div><div>Stock</div><div>Adjust stock</div><div></div></div>';
-  list.forEach(i => {
-    const s = stat(i), pct = Math.min(100, Math.max(4, i.have / i.target * 100));
-    h += `<div class="row"><div class="name"><b>${i.n}</b><small>${i.d} · ${gbp(i.p)} each · ${i.s}</small></div>
-    <div><div class="lvl" aria-hidden="true"><div class="bg-${s}" style="width:${pct}%"></div></div>
-    <div class="qty"><span class="tag ${s}">${label[s]}</span> · ${lasts(i)}</div></div>
-    <div class="adj"><button data-d="-1" data-id="${i.id}" aria-label="Remove one ${i.n}">−</button><input type="number" min="0" step="any" value="${fmt(i.have)}" data-set="${i.id}" aria-label="${i.n} in stock"><button data-d="1" data-id="${i.id}" aria-label="Add one ${i.n}">+</button></div>
-    <div><button class="add" data-cart="${i.id}" ${cart[i.id] ? "disabled" : ""}>${cart[i.id] ? "In cart" : "Add to cart"}</button></div></div>`;
+  groups(list).forEach(g => {
+    h += `<div class="cat"><span>${g.c}</span><span>${g.items.length} item${g.items.length > 1 ? "s" : ""}</span></div>`;
+    g.items.forEach(i => {
+      const s = stat(i), pct = Math.min(100, Math.max(4, i.have / i.target * 100)), ch = cheapest(i);
+      const price = ch && ch.price != null ? " · from " + gbp(ch.price) + " each" : "";
+      const btn = i.src.length
+        ? `<button class="add" data-cart="${i.id}" ${cart[i.id] ? "disabled" : ""}>${cart[i.id] ? "In cart" : "Add to cart"}</button>`
+        : `<a class="add" href="shops.html#item-${i.id}">Link a shop</a>`;
+      h += `<div class="row"><div class="name"><b>${esc(i.n)}</b><small>${esc(i.d)}${price}</small></div>
+      <div><div class="lvl" aria-hidden="true"><div class="bg-${s}" style="width:${pct}%"></div></div>
+      <div class="qty"><span class="tag ${s}">${label[s]}</span> · ${lasts(i)}</div></div>
+      <div class="adj"><button data-d="-1" data-id="${i.id}" aria-label="Remove one ${esc(i.n)}">−</button><input type="number" min="0" step="any" value="${fmt(i.have)}" data-set="${i.id}" aria-label="${esc(i.n)} in stock"><button data-d="1" data-id="${i.id}" aria-label="Add one ${esc(i.n)}">+</button></div>
+      <div>${btn}</div></div>`;
+    });
   });
   if (!list.length) h += '<div class="row"><div class="empty">No items match. Clear the search or pick another filter.</div></div>';
   document.getElementById("table").innerHTML = h;
 }
 
+function addToCart(i) {
+  const ch = cheapest(i);
+  if (!ch) return false;
+  cart[i.id] = { q: i.pack, shop: ch.shop };
+  return true;
+}
+
 function renderCart() {
   const ids = Object.keys(cart), el = document.getElementById("cart");
-  if (!ids.length) { el.innerHTML = '<p class="empty">Your cart is empty. Add items that are running low and they will be grouped by supplier here.</p>'; return; }
+  if (!ids.length) { el.innerHTML = '<p class="empty">Your cart is empty. Add items that are running low and they will be grouped by shop here.</p>'; return; }
   const g = {};
-  ids.forEach(id => { const i = items.find(x => x.id == id); (g[i.s] = g[i.s] || []).push(i); });
-  let total = 0, h = "";
-  Object.keys(g).forEach(s => {
+  ids.forEach(id => { const i = items.find(x => x.id == id); (g[cart[id].shop] = g[cart[id].shop] || []).push(i); });
+  let total = 0, missing = false, h = "";
+  Object.keys(g).forEach(sh => {
     let sub = 0, l = "";
-    g[s].forEach(i => {
-      sub += i.p * cart[i.id];
-      l += `<div class="line"><span>${i.n}<br><span class="step"><button data-m="${i.id}" aria-label="Fewer ${i.n}">−</button>${cart[i.id]}<button data-p="${i.id}" aria-label="More ${i.n}">+</button></span></span><span>${gbp(i.p * cart[i.id])}</span></div>`;
+    g[sh].forEach(i => {
+      const c = cart[i.id], s = srcOf(i, sh), p = s && s.price != null ? s.price : null;
+      if (p == null) missing = true;
+      const lp = (p || 0) * c.q; sub += lp;
+      const opts = i.src.map(x => `<option value="${esc(x.shop)}"${x.shop === sh ? " selected" : ""}>${esc(shopName(S, x.shop))}${x.price != null ? " · " + gbp(x.price) : ""}</option>`).join("");
+      l += `<div class="line"><span>${esc(i.n)}<br><span class="step"><button data-m="${i.id}" aria-label="Fewer ${esc(i.n)}">−</button>${c.q}<button data-p="${i.id}" aria-label="More ${esc(i.n)}">+</button></span><br><select class="mini" data-shop="${i.id}" aria-label="Shop for ${esc(i.n)}">${opts}</select></span><span>${p == null ? "No price" : gbp(lp)}</span></div>`;
     });
     total += sub;
-    h += `<div class="sup"><h3><span>${s}</span><span>${gbp(sub)}</span></h3>${l}</div>`;
+    h += `<div class="sup"><h3><span>${esc(shopName(S, sh))}</span><span>${gbp(sub)}</span></h3>${l}</div>`;
   });
   const n = Object.keys(g).length;
-  h += `<div class="total"><span>Total</span><span>${gbp(total)}</span></div><button class="buy" id="buy">Place ${n} order${n > 1 ? "s" : ""}</button><p class="note">Demo only. Real ordering would need to be connected to each supplier. Stock changes when you add it with + after delivery.</p>`;
+  h += `<div class="total"><span>Total</span><span>${gbp(total)}</span></div><button class="buy" id="buy">Place ${n} order${n > 1 ? "s" : ""}</button><p class="note">Demo only: nothing is ordered. Prices come from the Shops page and some are ex VAT.${missing ? " Some items have no price yet." : ""} After a delivery arrives, add it to stock with +.</p>`;
   el.innerHTML = h;
 }
 
@@ -196,15 +298,23 @@ const setHave = (id, v) => { const i = items.find(x => x.id == id); i.have = Mat
 document.addEventListener("click", e => {
   const t = e.target;
   if (t.dataset.d) { const i = items.find(x => x.id == t.dataset.id); setHave(i.id, i.have + Number(t.dataset.d)); }
-  else if (t.dataset.cart) { cart[t.dataset.cart] = items.find(i => i.id == t.dataset.cart).pack; render(); }
-  else if (t.dataset.p) { cart[t.dataset.p]++; renderCart(); }
-  else if (t.dataset.m) { if (--cart[t.dataset.m] < 1) delete cart[t.dataset.m]; render(); }
+  else if (t.dataset.cart) { addToCart(items.find(i => i.id == t.dataset.cart)); render(); }
+  else if (t.dataset.p) { cart[t.dataset.p].q++; renderCart(); }
+  else if (t.dataset.m) { if (--cart[t.dataset.m].q < 1) delete cart[t.dataset.m]; render(); }
   else if (t.dataset.f) { filter = t.dataset.f; document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === t)); renderTable(); }
-  else if (t.id === "addall") { items.filter(i => stat(i) !== "ok").forEach(i => { if (!cart[i.id]) cart[i.id] = i.pack; }); render(); toast("Added every low item to the cart"); }
-  else if (t.id === "buy") { const n = new Set(Object.keys(cart).map(id => items.find(i => i.id == id).s)).size; Object.keys(cart).forEach(k => delete cart[k]); render(); toast(n + " order" + (n > 1 ? "s" : "") + " sent (demo)"); }
+  else if (t.id === "addall") {
+    let added = 0, skipped = 0;
+    items.filter(i => stat(i) !== "ok").forEach(i => { if (cart[i.id]) return; if (addToCart(i)) added++; else skipped++; });
+    render();
+    toast(added ? "Added " + added + " low item" + (added > 1 ? "s" : "") + " to the cart" + (skipped ? ". " + skipped + " need a shop linked first" : "") : skipped ? skipped + " low item" + (skipped > 1 ? "s need" : " needs") + " a shop linked first" : "No low items to add");
+  }
+  else if (t.id === "buy") { const n = new Set(Object.keys(cart).map(id => cart[id].shop)).size; Object.keys(cart).forEach(k => delete cart[k]); render(); toast(n + " order" + (n > 1 ? "s" : "") + " sent (demo)"); }
 });
 document.addEventListener("change", e => {
-  if (e.target.dataset.set) { const v = parseFloat(e.target.value); setHave(e.target.dataset.set, isNaN(v) ? 0 : v); }
+  const t = e.target;
+  if (t.dataset.set) { const v = parseFloat(t.value); setHave(t.dataset.set, isNaN(v) ? 0 : v); }
+  else if (t.dataset.shop) { cart[t.dataset.shop].shop = t.value; renderCart(); }
+  else if (t.id === "cat") { cat = t.value; renderTable(); }
 });
 document.getElementById("q").addEventListener("input", e => { term = e.target.value.toLowerCase(); renderTable(); });
 render();
