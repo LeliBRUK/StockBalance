@@ -104,16 +104,18 @@ select.mini{font-size:12px;padding:4px 6px;width:auto;max-width:190px}
   <form class="card" id="f">
     <div class="logo"><i></i>Stock Balance</div>
     <h1>Sign in</h1>
-    <p class="sub">Enter the password to see stock levels and shops.</p>
+    <p class="sub">Sign in to see stock levels and shops.</p>
+    <label class="lab" for="user">Username</label>
+    <input class="txt" id="user" type="text" autocomplete="username" required autofocus style="margin-bottom:12px">
     <label class="lab" for="pw">Password</label>
-    <input class="txt" id="pw" type="password" autocomplete="current-password" required autofocus>
+    <input class="txt" id="pw" type="password" autocomplete="current-password" required>
     <label class="keep"><input type="checkbox" id="keep"> Keep me signed in on this device</label>
     <p class="err" id="err" role="alert"></p>
     <button class="buy" type="submit">Sign in</button>
   </form>
 </main>
 <script>
-const H = "f986ce1418f6c82ee59285320f77a3cba0c3fd2842aafd6e0e7398920a13579c", TOKEN = "sb.auth";
+const H = "477cce3bafa68377746c5deafd2098c88b35da25d29fc4d69e5c7a4d6e4d1422", TOKEN = "sb.auth";
 const sha = async s => {
   const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
   return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("");
@@ -121,11 +123,11 @@ const sha = async s => {
 try { if (sessionStorage.getItem(TOKEN) === H || localStorage.getItem(TOKEN) === H) location.replace("index.html"); } catch (e) {}
 document.getElementById("f").addEventListener("submit", async e => {
   e.preventDefault();
-  const err = document.getElementById("err"), pw = document.getElementById("pw");
+  const err = document.getElementById("err"), pw = document.getElementById("pw"), user = document.getElementById("user");
   err.textContent = "";
   if (!(window.crypto && crypto.subtle)) { err.textContent = "This page needs to be opened over https to check the password."; return; }
-  const ok = (await sha("stockbalance|" + pw.value)) === H;
-  if (!ok) { await new Promise(r => setTimeout(r, 800)); err.textContent = "That password isn't right. Try again."; pw.value = ""; pw.focus(); return; }
+  const ok = (await sha("stockbalance|" + user.value.trim().toLowerCase() + "|" + pw.value)) === H;
+  if (!ok) { await new Promise(r => setTimeout(r, 800)); err.textContent = "That username or password isn't right. Try again."; pw.value = ""; pw.focus(); return; }
   try {
     sessionStorage.removeItem(TOKEN); localStorage.removeItem(TOKEN);
     (document.getElementById("keep").checked ? localStorage : sessionStorage).setItem(TOKEN, H);
