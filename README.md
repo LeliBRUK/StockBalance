@@ -30,3 +30,7 @@ The idea: track stock for the cleaning products, delivery boxes, packing materia
 ## Changing the site
 
 The site is four plain files: `index.html`, `daily-usage.html`, `shops.html` and `login.html`. On GitHub Pages they open at clean addresses: the main address for Home, then `/daily-usage`, `/shops` and `/login`. These clean links only work on the live site. If you open the files straight from a folder on your computer, the menu links will not find each other. Each one has its styling and code built in, so they work as long as they sit in the same folder. To update the live site, change the files and commit. GitHub Pages republishes within a minute or two.
+
+## Hosting on Firebase (optional)
+
+`firebase.json` is included so the same files can be hosted on Firebase Hosting instead of GitHub Pages. With the Firebase CLI installed and a Firebase project created, deploy with `firebase deploy --only hosting --project YOUR_PROJECT_ID`. Firebase Hosting is still static hosting. A shared database and a real login need Firestore and Firebase Authentication, which are a later step. GitHub Pages ignores this file, so both can run side by side.
