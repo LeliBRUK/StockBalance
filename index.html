@@ -271,11 +271,12 @@ function renderTable() {
   document.getElementById("table").innerHTML = h;
 }
 
-function addToCart(i) { cart[i.id] = { q: i.pack }; }
+const topUp = i => Math.max(0, Math.ceil(r2(i.target - i.have))); // full stock minus current stock
+function addToCart(i) { const q = topUp(i); if (!q) return false; cart[i.id] = { q }; return true; }
 
 function renderCart() {
   const ids = Object.keys(cart).filter(id => items.some(x => x.id == id)), el = document.getElementById("cart");
-  if (!ids.length) { el.innerHTML = '<p class="empty">Your cart is empty. Add items that are running low and they will be grouped by shop here.</p>'; return; }
+  if (!ids.length) { el.innerHTML = '<p class="empty">Your cart is empty. Add items that are running low and they will be grouped by shop here. Each one is added at the amount that brings it back to full stock.</p>'; return; }
   const g = {};
   ids.forEach(id => { const i = items.find(x => x.id == id), k = shopFor(i); (g[k] = g[k] || []).push(i); });
   const keys = Object.keys(g).sort((a, b) => (a === "") - (b === ""));
@@ -304,13 +305,13 @@ const setHave = (id, v) => { const i = items.find(x => x.id == id); i.have = Mat
 document.addEventListener("click", e => {
   const t = e.target;
   if (t.dataset.d) { const i = items.find(x => x.id == t.dataset.id); setHave(i.id, i.have + Number(t.dataset.d)); }
-  else if (t.dataset.cart) { addToCart(items.find(i => i.id == t.dataset.cart)); render(); }
+  else if (t.dataset.cart) { const i = items.find(x => x.id == t.dataset.cart); if (addToCart(i)) { render(); toast("Added " + cart[i.id].q + " " + i.n + " to reach full stock"); } else toast(i.n + " is already at full stock"); }
   else if (t.dataset.p) { cart[t.dataset.p].q++; renderCart(); }
   else if (t.dataset.m) { if (--cart[t.dataset.m].q < 1) delete cart[t.dataset.m]; render(); }
   else if (t.dataset.f) { filter = t.dataset.f; document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === t)); renderTable(); }
   else if (t.id === "addall") {
     let added = 0;
-    items.filter(i => stat(i) !== "ok").forEach(i => { if (cart[i.id]) return; addToCart(i); added++; });
+    items.filter(i => stat(i) !== "ok").forEach(i => { if (cart[i.id]) return; if (addToCart(i)) added++; });
     render();
     toast(added ? "Added " + added + " low item" + (added > 1 ? "s" : "") + " to the cart" : "No low items to add");
   }
