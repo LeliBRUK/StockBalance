@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stock Balance · Daily usage</title>
-<script>(function(){var h="477cce3bafa68377746c5deafd2098c88b35da25d29fc4d69e5c7a4d6e4d1422",ok=false;try{ok=sessionStorage.getItem("sb.auth")===h||localStorage.getItem("sb.auth")===h}catch(e){}if(!ok){document.documentElement.style.display="none";location.replace("login")}})();</script>
+<script>window.SB_CLOUD=false;</script><script>(function(){var h="477cce3bafa68377746c5deafd2098c88b35da25d29fc4d69e5c7a4d6e4d1422",ok=false;try{ok=sessionStorage.getItem("sb.auth")===h||localStorage.getItem("sb.auth")===h}catch(e){}if(!ok){document.documentElement.style.display="none";location.replace("login")}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -101,6 +101,7 @@ select.mini{font-size:12px;padding:4px 6px;width:auto;max-width:190px}
 @media(prefers-reduced-motion:reduce){#toast{transition:none}}
 
 .pwwrap{position:relative}.pwwrap .txt{padding-right:42px}.eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:0;padding:6px;color:var(--mute);cursor:pointer;display:grid;place-items:center;border-radius:6px}.eye:hover{color:var(--ink)}.eye:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.sync{align-self:center;font-size:12px;color:var(--mute);margin-right:4px;white-space:nowrap}.sync.bad{color:#b3261e}
 </style>
 </head>
 <body>
@@ -118,7 +119,7 @@ select.mini{font-size:12px;padding:4px 6px;width:auto;max-width:190px}
 </main>
 <div id="toast" role="status"></div>
 <script>
-// Shared by every page. All data is saved in this browser (localStorage).
+// Shared by every page. Data is cached in this browser (localStorage) and, when Firebase is set up, synced to the cloud (see cloud.js).
 const KEY = "stockbalance.v1";
 const VER = 2;
 const CATS = ["Cleaning and waste", "Boxes", "Packing materials", "Labels and paper"];
@@ -164,10 +165,8 @@ const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&a
 function fresh() {
   return { shops: SHOPS0.map(s => ({ ...s })), items: ITEMS0.map(i => ({ ...i, src: i.src.map(x => ({ ...x })) })), last: today(), v: VER };
 }
-function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
-function load() {
-  let s = null;
-  try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} if (window.SB && SB.push) SB.push(); }
+function normalize(s) {
   if (!s || !Array.isArray(s.shops) || !Array.isArray(s.items)) s = fresh();
   if (s.v !== VER) { // new shop list: reset shops and links, keep stock counts and usage
     s.shops = SHOPS0.map(x => ({ ...x }));
@@ -180,6 +179,12 @@ function load() {
     s.items.forEach(i => { i.have = Math.max(0, r2(i.have - i.rate * days)); });
     s.last = today();
   }
+  return s;
+}
+function load() {
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+  s = normalize(s);
   save(s);
   return s;
 }
@@ -208,7 +213,16 @@ function toast(t) {
   e.textContent = t; e.classList.add("show");
   clearTimeout(toast.h); toast.h = setTimeout(() => e.classList.remove("show"), 2600);
 }
+window.SB = window.SB || {};
+SB.loaded = new Promise(r => { SB.done = r; });
+SB.status = (t, bad) => {
+  let e = document.getElementById("sync");
+  if (!e) { const n = document.querySelector(".nav"); if (!n) return; e = document.createElement("span"); e.id = "sync"; e.className = "sync"; n.insertBefore(e, document.getElementById("signout")); }
+  e.textContent = t; e.classList.toggle("bad", !!bad);
+};
+if (!window.SB_CLOUD) SB.status("Saved on this device only");
 document.addEventListener("click", e => {
+  if (window.SB_CLOUD) return; // cloud.js handles sign out
   if (e.target.id === "signout") {
     try { sessionStorage.removeItem("sb.auth"); localStorage.removeItem("sb.auth"); } catch (x) {}
     location.href = "login";
@@ -243,7 +257,9 @@ document.addEventListener("change", e => {
 document.getElementById("reset").addEventListener("click", () => {
   if (confirm("Reset every item, shop and price to the starting list? Your stock counts will be lost.")) { S = reset(); render(); toast("Starting list restored"); }
 });
+SB.onRemote = () => { S = load(); render(); };
 render();
 </script>
+
 </body>
 </html>

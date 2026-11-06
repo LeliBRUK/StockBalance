@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stock Balance · Home</title>
-<script>(function(){var h="477cce3bafa68377746c5deafd2098c88b35da25d29fc4d69e5c7a4d6e4d1422",ok=false;try{ok=sessionStorage.getItem("sb.auth")===h||localStorage.getItem("sb.auth")===h}catch(e){}if(!ok){document.documentElement.style.display="none";location.replace("login")}})();</script>
+<script>window.SB_CLOUD=false;</script><script>(function(){var h="477cce3bafa68377746c5deafd2098c88b35da25d29fc4d69e5c7a4d6e4d1422",ok=false;try{ok=sessionStorage.getItem("sb.auth")===h||localStorage.getItem("sb.auth")===h}catch(e){}if(!ok){document.documentElement.style.display="none";location.replace("login")}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -101,6 +101,7 @@ select.mini{font-size:12px;padding:4px 6px;width:auto;max-width:190px}
 @media(prefers-reduced-motion:reduce){#toast{transition:none}}
 
 .pwwrap{position:relative}.pwwrap .txt{padding-right:42px}.eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:0;padding:6px;color:var(--mute);cursor:pointer;display:grid;place-items:center;border-radius:6px}.eye:hover{color:var(--ink)}.eye:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.sync{align-self:center;font-size:12px;color:var(--mute);margin-right:4px;white-space:nowrap}.sync.bad{color:#b3261e}
 </style>
 </head>
 <body>
@@ -111,7 +112,7 @@ select.mini{font-size:12px;padding:4px 6px;width:auto;max-width:190px}
 <main>
   <section>
     <h1 id="headline"></h1>
-    <p class="sub">Stock drops each day by the amounts set on the Daily usage page. Use − and + when you use more or less, or when a delivery arrives. Everything is saved in this browser.</p>
+    <p class="sub">Stock drops each day by the amounts set on the Daily usage page. Use − and + when you use more or less, or when a delivery arrives. Everything is saved in this browser only.</p>
     <div class="bar">
       <button class="chip" data-f="all" aria-pressed="true">All items</button>
       <button class="chip" data-f="low" aria-pressed="false">Running low</button>
@@ -130,7 +131,7 @@ select.mini{font-size:12px;padding:4px 6px;width:auto;max-width:190px}
 </main>
 <div id="toast" role="status"></div>
 <script>
-// Shared by every page. All data is saved in this browser (localStorage).
+// Shared by every page. Data is cached in this browser (localStorage) and, when Firebase is set up, synced to the cloud (see cloud.js).
 const KEY = "stockbalance.v1";
 const VER = 2;
 const CATS = ["Cleaning and waste", "Boxes", "Packing materials", "Labels and paper"];
@@ -176,10 +177,8 @@ const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&a
 function fresh() {
   return { shops: SHOPS0.map(s => ({ ...s })), items: ITEMS0.map(i => ({ ...i, src: i.src.map(x => ({ ...x })) })), last: today(), v: VER };
 }
-function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
-function load() {
-  let s = null;
-  try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} if (window.SB && SB.push) SB.push(); }
+function normalize(s) {
   if (!s || !Array.isArray(s.shops) || !Array.isArray(s.items)) s = fresh();
   if (s.v !== VER) { // new shop list: reset shops and links, keep stock counts and usage
     s.shops = SHOPS0.map(x => ({ ...x }));
@@ -192,6 +191,12 @@ function load() {
     s.items.forEach(i => { i.have = Math.max(0, r2(i.have - i.rate * days)); });
     s.last = today();
   }
+  return s;
+}
+function load() {
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+  s = normalize(s);
   save(s);
   return s;
 }
@@ -220,7 +225,16 @@ function toast(t) {
   e.textContent = t; e.classList.add("show");
   clearTimeout(toast.h); toast.h = setTimeout(() => e.classList.remove("show"), 2600);
 }
+window.SB = window.SB || {};
+SB.loaded = new Promise(r => { SB.done = r; });
+SB.status = (t, bad) => {
+  let e = document.getElementById("sync");
+  if (!e) { const n = document.querySelector(".nav"); if (!n) return; e = document.createElement("span"); e.id = "sync"; e.className = "sync"; n.insertBefore(e, document.getElementById("signout")); }
+  e.textContent = t; e.classList.toggle("bad", !!bad);
+};
+if (!window.SB_CLOUD) SB.status("Saved on this device only");
 document.addEventListener("click", e => {
+  if (window.SB_CLOUD) return; // cloud.js handles sign out
   if (e.target.id === "signout") {
     try { sessionStorage.removeItem("sb.auth"); localStorage.removeItem("sb.auth"); } catch (x) {}
     location.href = "login";
@@ -231,7 +245,7 @@ document.addEventListener("click", e => {
 const S = load(), items = S.items, cart = {};
 let filter = "all", cat = "all", term = "";
 const label = { ok: "Well stocked", low: "Running low", out: "Out of stock" };
-const srcOf = (i, shop) => i.src.find(x => x.shop === shop);
+const shopFor = i => { const c = cheapest(i); return c ? c.shop : ""; };
 
 document.getElementById("cat").innerHTML = '<option value="all">All categories</option>' + CATS.map(c => `<option>${c}</option>`).join("");
 
@@ -245,9 +259,7 @@ function renderTable() {
     g.items.forEach(i => {
       const s = stat(i), pct = Math.min(100, Math.max(4, i.have / i.target * 100)), ch = cheapest(i);
       const pl = ch && ch.price != null ? `<span class="pl" title="Price each, from the cheapest shop${ch.est ? " (estimate)" : ""}">${ch.est ? "~" : ""}${gbp(ch.price)}</span>` : "";
-      const btn = i.src.length
-        ? `<button class="add" data-cart="${i.id}" ${cart[i.id] ? "disabled" : ""}>${cart[i.id] ? "In cart" : "Add to cart"}</button>`
-        : `<a class="add" href="shops#item-${i.id}">Link a shop</a>`;
+      const btn = `<button class="add" data-cart="${i.id}" ${cart[i.id] ? "disabled" : ""}>${cart[i.id] ? "In cart" : "Add to cart"}</button>`;
       h += `<div class="row"><div class="name"><b>${esc(i.n)}${pl}</b><small>${esc(i.d)}</small></div>
       <div><div class="lvl" aria-hidden="true"><div class="bg-${s}" style="width:${pct}%"></div></div>
       <div class="qty"><span class="tag ${s}">${label[s]}</span> · ${lasts(i)}</div></div>
@@ -259,33 +271,30 @@ function renderTable() {
   document.getElementById("table").innerHTML = h;
 }
 
-function addToCart(i) {
-  const ch = cheapest(i);
-  if (!ch) return false;
-  cart[i.id] = { q: i.pack, shop: ch.shop };
-  return true;
-}
+function addToCart(i) { cart[i.id] = { q: i.pack }; }
 
 function renderCart() {
-  const ids = Object.keys(cart), el = document.getElementById("cart");
+  const ids = Object.keys(cart).filter(id => items.some(x => x.id == id)), el = document.getElementById("cart");
   if (!ids.length) { el.innerHTML = '<p class="empty">Your cart is empty. Add items that are running low and they will be grouped by shop here.</p>'; return; }
   const g = {};
-  ids.forEach(id => { const i = items.find(x => x.id == id); (g[cart[id].shop] = g[cart[id].shop] || []).push(i); });
+  ids.forEach(id => { const i = items.find(x => x.id == id), k = shopFor(i); (g[k] = g[k] || []).push(i); });
+  const keys = Object.keys(g).sort((a, b) => (a === "") - (b === ""));
   let total = 0, missing = false, h = "";
-  Object.keys(g).forEach(sh => {
+  keys.forEach(sh => {
     let sub = 0, l = "";
     g[sh].forEach(i => {
-      const c = cart[i.id], s = srcOf(i, sh), p = s && s.price != null ? s.price : null;
-      if (p == null) missing = true;
+      const c = cart[i.id], ch = cheapest(i), p = ch && ch.price != null ? ch.price : null;
+      if (sh && p == null) missing = true;
       const lp = (p || 0) * c.q; sub += lp;
-      const opts = i.src.map(x => `<option value="${esc(x.shop)}"${x.shop === sh ? " selected" : ""}>${esc(shopName(S, x.shop))}${x.price != null ? " · " + gbp(x.price) : ""}</option>`).join("");
-      l += `<div class="line"><span>${esc(i.n)}<br><span class="step"><button data-m="${i.id}" aria-label="Fewer ${esc(i.n)}">−</button>${c.q}<button data-p="${i.id}" aria-label="More ${esc(i.n)}">+</button></span><br><select class="mini" data-shop="${i.id}" aria-label="Shop for ${esc(i.n)}">${opts}</select></span><span>${p == null ? "No price" : gbp(lp)}</span></div>`;
+      const right = !sh ? `<a href="shops#item-${i.id}">Pick a shop</a>` : p == null ? "No price" : (ch.est ? "~" : "") + gbp(lp);
+      l += `<div class="line"><span>${esc(i.n)}<br><span class="step"><button data-m="${i.id}" aria-label="Fewer ${esc(i.n)}">−</button>${c.q}<button data-p="${i.id}" aria-label="More ${esc(i.n)}">+</button></span></span><span>${right}</span></div>`;
     });
     total += sub;
-    h += `<div class="sup"><h3><span>${esc(shopName(S, sh))}</span><span>${gbp(sub)}</span></h3>${l}</div>`;
+    h += `<div class="sup"><h3><span>${sh ? esc(shopName(S, sh)) : "No shop linked yet"}</span><span>${sh ? gbp(sub) : ""}</span></h3>${l}</div>`;
   });
-  const n = Object.keys(g).length;
-  h += `<div class="total"><span>Total</span><span>${gbp(total)}</span></div><button class="buy" id="buy">Place ${n} order${n > 1 ? "s" : ""}</button><p class="note">Demo only: nothing is ordered. Prices come from the Shops page and some are ex VAT.${missing ? " Some items have no price yet." : ""} After a delivery arrives, add it to stock with +.</p>`;
+  const n = keys.filter(k => k).length, none = keys.includes("");
+  h += `<div class="total"><span>Total</span><span>${gbp(total)}</span></div>` + (n ? `<button class="buy" id="buy">Place ${n} order${n > 1 ? "s" : ""}</button>` : `<button class="buy" id="buy" disabled>Pick a shop to order</button>`) +
+    `<p class="note">Demo only: nothing is ordered. Each item uses the shop picked for it on the Shops page. Some prices are ex VAT.${none ? " Items with no shop are left out of the orders until you pick one." : ""}${missing ? " Some items have no price yet." : ""} After a delivery arrives, add it to stock with +.</p>`;
   el.innerHTML = h;
 }
 
@@ -300,21 +309,26 @@ document.addEventListener("click", e => {
   else if (t.dataset.m) { if (--cart[t.dataset.m].q < 1) delete cart[t.dataset.m]; render(); }
   else if (t.dataset.f) { filter = t.dataset.f; document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === t)); renderTable(); }
   else if (t.id === "addall") {
-    let added = 0, skipped = 0;
-    items.filter(i => stat(i) !== "ok").forEach(i => { if (cart[i.id]) return; if (addToCart(i)) added++; else skipped++; });
+    let added = 0;
+    items.filter(i => stat(i) !== "ok").forEach(i => { if (cart[i.id]) return; addToCart(i); added++; });
     render();
-    toast(added ? "Added " + added + " low item" + (added > 1 ? "s" : "") + " to the cart" + (skipped ? ". " + skipped + " need a shop linked first" : "") : skipped ? skipped + " low item" + (skipped > 1 ? "s need" : " needs") + " a shop linked first" : "No low items to add");
+    toast(added ? "Added " + added + " low item" + (added > 1 ? "s" : "") + " to the cart" : "No low items to add");
   }
-  else if (t.id === "buy") { const n = new Set(Object.keys(cart).map(id => cart[id].shop)).size; Object.keys(cart).forEach(k => delete cart[k]); render(); toast(n + " order" + (n > 1 ? "s" : "") + " sent (demo)"); }
+  else if (t.id === "buy") {
+    const ord = Object.keys(cart).filter(id => shopFor(items.find(x => x.id == id))), n = new Set(ord.map(id => shopFor(items.find(x => x.id == id)))).size;
+    if (!n) return;
+    ord.forEach(k => delete cart[k]); render(); toast(n + " order" + (n > 1 ? "s" : "") + " sent (demo)");
+  }
 });
 document.addEventListener("change", e => {
   const t = e.target;
   if (t.dataset.set) { const v = parseFloat(t.value); setHave(t.dataset.set, isNaN(v) ? 0 : v); }
-  else if (t.dataset.shop) { cart[t.dataset.shop].shop = t.value; renderCart(); }
   else if (t.id === "cat") { cat = t.value; renderTable(); }
 });
 document.getElementById("q").addEventListener("input", e => { term = e.target.value.toLowerCase(); renderTable(); });
+SB.onRemote = () => { const n = load(); S.shops.splice(0, S.shops.length, ...n.shops); S.items.splice(0, S.items.length, ...n.items); S.last = n.last; render(); };
 render();
 </script>
+
 </body>
 </html>

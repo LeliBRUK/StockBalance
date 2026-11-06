@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Only signed-in users can read or change the shared stock data.
+    match /stock/{doc} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

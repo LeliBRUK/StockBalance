@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stock Balance · Sign in</title>
+<script>window.SB_CLOUD=false;</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -100,6 +101,7 @@ select.mini{font-size:12px;padding:4px 6px;width:auto;max-width:190px}
 @media(prefers-reduced-motion:reduce){#toast{transition:none}}
 
 .pwwrap{position:relative}.pwwrap .txt{padding-right:42px}.eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:0;padding:6px;color:var(--mute);cursor:pointer;display:grid;place-items:center;border-radius:6px}.eye:hover{color:var(--ink)}.eye:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.sync{align-self:center;font-size:12px;color:var(--mute);margin-right:4px;white-space:nowrap}.sync.bad{color:#b3261e}
 </style>
 </head>
 <body>
@@ -124,12 +126,14 @@ select.mini{font-size:12px;padding:4px 6px;width:auto;max-width:190px}
   </form>
 </main>
 <script>
+window.SB = window.SB || { loaded: new Promise(r => { window.SBdone = r; }) };
+SB.done = SB.done || window.SBdone;
 const H = "477cce3bafa68377746c5deafd2098c88b35da25d29fc4d69e5c7a4d6e4d1422", TOKEN = "sb.auth";
 const sha = async s => {
   const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
   return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("");
 };
-try { if (sessionStorage.getItem(TOKEN) === H || localStorage.getItem(TOKEN) === H) location.replace("./"); } catch (e) {}
+try { if (!window.SB_CLOUD && (sessionStorage.getItem(TOKEN) === H || localStorage.getItem(TOKEN) === H)) location.replace("./"); } catch (e) {}
 document.getElementById("eye").addEventListener("click", e => {
   const pw = document.getElementById("pw"), b = e.currentTarget, show = pw.type === "password";
   pw.type = show ? "text" : "password";
@@ -141,6 +145,13 @@ document.getElementById("f").addEventListener("submit", async e => {
   e.preventDefault();
   const err = document.getElementById("err"), pw = document.getElementById("pw"), user = document.getElementById("user");
   err.textContent = "";
+  if (window.SB_CLOUD) {
+    const btn = e.submitter || document.querySelector("button[type=submit]"); btn.disabled = true;
+    const r = (await SB.loaded) ? await SB.signIn(user.value, pw.value, document.getElementById("keep").checked) : { ok: false, msg: "Can't reach the sign-in service. Check your connection and try again." };
+    btn.disabled = false;
+    if (r.ok) location.replace("./"); else { err.textContent = r.msg; pw.focus(); pw.select(); }
+    return;
+  }
   if (!(window.crypto && crypto.subtle)) { err.textContent = "This page needs to be opened over https to check the password."; return; }
   const ok = (await sha("stockbalance|" + user.value.trim().toLowerCase() + "|" + pw.value)) === H;
   if (!ok) { await new Promise(r => setTimeout(r, 800)); err.textContent = "That username or password isn't right. Try again."; pw.focus(); pw.select(); return; }
@@ -151,5 +162,6 @@ document.getElementById("f").addEventListener("submit", async e => {
   location.replace("./");
 });
 </script>
+
 </body>
 </html>
