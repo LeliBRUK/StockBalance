@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stock Balance · Import</title>
+<style>
+body{margin:0;padding:24px 16px;background:#eef3f2;color:#12303a;font:16px/1.5 system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;background:#fff;border:1px solid #d5e0de;border-radius:14px;padding:24px}
+textarea{width:100%;height:180px;font:13px monospace;border:1px solid #d5e0de;border-radius:8px;padding:10px;box-sizing:border-box}
+button{font:inherit;font-weight:600;margin-top:12px;padding:10px 18px;border-radius:999px;border:0;background:#12303a;color:#fff;cursor:pointer}
+code{background:#eef3f2;padding:2px 6px;border-radius:4px;font-size:13px;word-break:break-all}
+#msg{font-weight:600;margin:12px 0 0}
+@media (prefers-color-scheme:dark){body{background:#0f1c20;color:#e6f0ee}main{background:#172a30;border-color:#2a4249}textarea{background:#0f1c20;color:#e6f0ee;border-color:#2a4249}button{background:#e6f0ee;color:#0f1c20}code{background:#0f1c20}}
+</style>
+</head>
+<body>
+<main>
+  <h1 style="margin-top:0">Import data from the old site</h1>
+  <p>This replaces the stock data on the home server with a copy from another browser.</p>
+  <ol>
+    <li>Open the old site on the computer that has your numbers and sign in.</li>
+    <li>Press F12, open the Console tab, paste this and press Enter:<br><code>copy(localStorage.getItem("stockbalance.v1"))</code></li>
+    <li>Paste the result below and press Import.</li>
+  </ol>
+  <textarea id="t" placeholder='{"shops":[...],"items":[...]}' aria-label="Exported data"></textarea>
+  <button id="go">Import</button> <a href="./" style="margin-left:12px;color:inherit">Back to Stock Balance</a>
+  <p id="msg" role="status"></p>
+</main>
+<script>
+document.getElementById("go").addEventListener("click", async () => {
+  const msg = document.getElementById("msg");
+  let data;
+  try { data = JSON.parse(document.getElementById("t").value); if (typeof data === "string") data = JSON.parse(data); } catch (e) {}
+  if (!data || !Array.isArray(data.items) || !Array.isArray(data.shops)) { msg.textContent = "That doesn't look like Stock Balance data. Copy it again and retry."; return; }
+  if (!confirm("Replace the data on the server with these " + data.items.length + " items?")) return;
+  try {
+    const r = await fetch("/api/stock/state", { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ data }) });
+    if (r.status === 401) { location.href = "login"; return; }
+    msg.textContent = r.ok ? "Imported. Open Stock Balance to see it." : "The server refused the data (error " + r.status + ").";
+  } catch (e) { msg.textContent = "Can't reach the server."; }
+});
+</script>
+</body>
+</html>

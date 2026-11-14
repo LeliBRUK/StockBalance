@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stock Balance · Shops</title>
-<script>window.SB_CLOUD=false;</script><script>(function(){var h="477cce3bafa68377746c5deafd2098c88b35da25d29fc4d69e5c7a4d6e4d1422",ok=false;try{ok=sessionStorage.getItem("sb.auth")===h||localStorage.getItem("sb.auth")===h}catch(e){}if(!ok){document.documentElement.style.display="none";location.replace("login")}})();</script>
+<script>window.SB_CLOUD=true;document.documentElement.style.display="none";setTimeout(function(){document.documentElement.style.display=""},4000);</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -124,7 +124,7 @@ select.mini{font-size:12px;padding:4px 6px;width:auto;max-width:190px}
 </main>
 <div id="toast" role="status"></div>
 <script>
-// Shared by every page. Data is cached in this browser (localStorage) and, when Firebase is set up, synced to the cloud (see cloud.js).
+// Shared by every page. Data is cached in this browser (localStorage) and synced to the home server (see cloud.js).
 const KEY = "stockbalance.v1";
 const VER = 2;
 const CATS = ["Cleaning and waste", "Boxes", "Packing materials", "Labels and paper"];
@@ -325,5 +325,6 @@ render();
 if (location.hash) { const el = document.getElementById(location.hash.slice(1)); if (el) { el.scrollIntoView({ block: "center" }); el.classList.add("flash"); } }
 </script>
 
+<script src="cloud.js"></script>
 </body>
 </html>

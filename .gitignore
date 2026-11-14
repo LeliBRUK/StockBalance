@@ -1,0 +1,16 @@
+# Kept out of GitHub by github-sync.sh: secrets, data and caches.
+.env
+*.env
+.env.*
+uploads/
+data/
+backups/
+*.sql
+*.sqlite
+*.db
+*.bak
+*.log
+__pycache__/
+*.pyc
+node_modules/
+.venv/
